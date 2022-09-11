@@ -20,28 +20,38 @@ The library currently supports the following features:
 - 🤙🏻 API calls - Hooks to make API calls to your whitelisted backend functions and maintain state
 - 🔍 Search - Hook to search documents in your database (with debouncing ✨)
 
+
 We plan to add the following features in the future:
 
 - 🗝 Authentication with OAuth clients
 - Support for other common functions like `get_last_doc`, `exists` in the database.
 - Realtime event listeners using Socket.io
 
+
 The library uses [frappe-js-sdk](https://github.com/nikkothari22/frappe-js-sdk) and [SWR](https://swr.vercel.app) under the hood to make API calls to your Frappe backend.
 
-### SWR
+<br/>
+
+## SWR
 SWR uses a cache invalidation strategy and also updates the data constantly and automatically (in the background). This allows the UI to always be fast and reactive. 
 The hooks in the library use the default configuration for useSWR but you will be able to overwrite the configuration of useSWR. Please refer to the [useSWR API Options](https://swr.vercel.app/docs/options)
 
-### Looking for a Frappe frontend library for other Javascript frameworks?
+<br/>
+
+## Looking for a Frappe frontend library for other Javascript frameworks?
 
 You can use [frappe-js-sdk](https://github.com/nikkothari22/frappe-js-sdk) to interface your frontend web app with Frappe.
 
+<br/>
+
 ## Maintainers
 
-| Maintainer | GitHub                                    | Social                                        |
-| ---------- | ----------------------------------------- | --------------------------------------------- |
+| Maintainer     | GitHub                                          | Social                                              |
+| -------------- | ----------------------------------------------- | --------------------------------------------------- |
 | Nikhil Kothari | [nikkothari22](https://github.com/nikkothari22) | [@nik_kothari22](https://twitter.com/nik_kothari22) |
-| Janhvi Patil | [janhvipatil](https://github.com/janhvipatil) | [@janhvipatil_](https://twitter.com/janhvipatil_) |
+| Janhvi Patil   | [janhvipatil](https://github.com/janhvipatil)   | [@janhvipatil_](https://twitter.com/janhvipatil_)   |
+
+<br/>
 
 ## Installation
 
@@ -55,7 +65,11 @@ or
 yarn add frappe-react-sdk
 ```
 
-**Note** - All examples below are in Typescript. If you want to use it with Javascript, just ignore the type generics `<T>` in the examples blow.
+
+**Note** - All examples below are in Typescript. If you want to use it with Javascript, just ignore the type generics like `<T>` in the examples below.
+
+
+<br/>
 
 ## Initialising the library
 
@@ -63,6 +77,7 @@ To get started, initialise the library by wrapping your App with the `FrappeProv
 You can optionally provide the URL of your Frappe server if the web app is not hosted on the same URL. 
 
 In `App.tsx` or `App.jsx`:
+
 
 ```jsx
 import { FrappeProvider } from "frappe-react-sdk";
@@ -77,10 +92,14 @@ function App() {
 
 ```
 
-## Authentication - `useFrappeAuth()`
+<br/>
+
+## Authentication
 
 The `useFrappeAuth` hook allows you to maintain the state of the current user, as well as login and logout the current user.
+
 The hook uses `useSWR` under the hood to make the `get_current_user` API call - you can also pass in parameters to configure the behaviour of the useSWR hook. 
+
 
 ```jsx
 export const MyAuthComponent = () => {
@@ -92,9 +111,9 @@ export const MyAuthComponent = () => {
   // render user
     return <div>
         {currentUser}
-        <Button onClick={() => login("administrator", "admin")}>Login</Button>
-        <Button onClick={logout}>Logout</Button>
-        <Button onClick={updateCurrentUser}>Fetch current user</Button>
+        <button onClick={() => login("administrator", "admin")}>Login</button>
+        <button onClick={logout}>Logout</button>
+        <button onClick={updateCurrentUser}>Fetch current user</button>
 
     </div>
 }
@@ -102,12 +121,26 @@ export const MyAuthComponent = () => {
 
 The hook will throw an error if the API call to `frappe.auth.get_logged_user` fails (network issue etc) or if the user is logged out (403 Forbidden). Handle errors accordingly and route the user to your login page if the error is because the user is not logged in.
 
+<br/>
 
 ## Database
 
-#### Fetch a document
+<br/>
 
-The `useFrappeGetDoc` hook can be used to fetch a document from the database. The hook uses `useSWR` under the hood and it's configuration can be passed to it
+### Fetch a document
+
+The `useFrappeGetDoc` hook can be used to fetch a document from the database. The hook uses `useSWR` under the hood and it's configuration can be passed to it.
+
+
+Parameters:
+
+| No. | Variable  | type               | Required | Description               |
+| --- | --------- | ------------------ | -------- | ------------------------- |
+| 1.  | `doctype` | `string`           | ✅        | Name of the doctype       |
+| 2.  | `docname` | `string`           | ✅        | Name of the document      |
+| 3.  | `options` | `SWRConfiguration` | -        | SWR Configuration Options |
+
+
 
 ```tsx
 export const MyDocumentData = () => {
@@ -124,22 +157,32 @@ export const MyDocumentData = () => {
     if (data) {
         return <p>
             {JSON.stringify(data)}
-            <Button onClick={() => mutate()}>Reload</Button>
+            <button onClick={() => mutate()}>Reload</button>
         </p>
     }
     return null
 }
 ```
 
-#### Fetch list of documents
+
+<hr/>
+<br/>
+
+### Fetch list of documents
 
 The `useFrappeGetDocList` hook can be used to fetch a list of documents from the database.
 
+
 Parameters:
 
-1. DocType name - e.g. "User", "Project"
-2. Arguments - optional parameter (object) to sort, filter, paginate and select the fields that you want to fetch.
-3. SWRConfiguration - optional
+| No. | Variable  | type               | Required | Description                                                                                         |
+| --- | --------- | ------------------ | -------- | --------------------------------------------------------------------------------------------------- |
+| 1.  | `doctype` | `string`           | ✅        | Name of the doctype                                                                                 |
+| 2.  | `args`    | `GetDocListArgs`   | -        | optional parameter (object) to sort, filter, paginate and select the fields that you want to fetch. |
+| 3.  | `options` | `SWRConfiguration` | -        | SWR Configuration Options                                                                           |
+
+
+
 
 ```tsx
 export const MyDocumentList = () => {
@@ -175,19 +218,122 @@ export const MyDocumentList = () => {
     if (data) {
         return <p>
             {JSON.stringify(data)}
-            <Button onClick={() => mutate()}>Reload</Button>
+            <button onClick={() => mutate()}>Reload</button>
         </p>
     }
     return null
 }
 ```
 Type declarations are available for the second argument and will be shown to you in your code editor.
+<br/>
+<br/>
 
-<details><summary>Simpler example without parameters</summary><p>
+#### Some other simpler examples (click to expand):
+
+<br/>
+
+<details><summary>Fetch 20 items without optional parameters</summary><p>
+
+In this case, only the `name` attribute will be fetched.
 
 ```tsx
 export const MyDocumentList = () => {
-    const { data, error, isValidating, mutate } = useFrappeGetDocList<User>("User");
+    const { data, error, isValidating } = useFrappeGetDocList<string>("User");
+
+    if (isValidating) {
+        return <>Loading</>
+    }
+    if (error) {
+        return <>{JSON.stringify(error)}</>
+    }
+    if (data) {
+        return <ul>
+        {
+            data.map(username => <li>{username}</li>)
+        }
+        </ul>
+    }
+    return null
+}
+```
+
+</p></details>
+
+<details><summary>Fetch usernames and emails with pagination</summary><p>
+
+
+```tsx
+type UserItem = {
+    name: string,
+    email: string
+}
+export const MyDocumentList = () => {
+    const [pageIndex, setPageIndex] = useState(0)
+    const { data, error, isValidating } = useFrappeGetDocList<UserItem>("User" , {
+        fields: ["name", "email"],
+        limit_start: pageIndex,
+        /** Number of documents to be fetched. Default is 20  */
+        limit: 10,
+        /** Sort results by field and order  */
+        orderBy: {
+            field: "creation",
+            order: 'desc'
+        }
+    });
+
+    if (isValidating) {
+        return <>Loading</>
+    }
+    if (error) {
+        return <>{JSON.stringify(error)}</>
+    }
+    if (data) {
+        return <div>
+            <ul>
+            {
+                data.map({name, email} => <li>{name} - {email}</li>)
+            }
+            </ul>
+            <button onClick={() => setPageIndex(pageIndex + 10)}>Next page</button>
+        </div>
+    }
+    return null
+}
+```
+
+</p></details>
+
+<br/>
+<hr/>
+<br/>
+
+### Fetch number of documents with filters
+
+<br/>
+
+Parameters:
+
+| No. | Variable  | type               | Required | Description                                                    |
+| --- | --------- | ------------------ | -------- | -------------------------------------------------------------- |
+| 1.  | `doctype` | `string`           | ✅        | Name of the doctype                                            |
+| 2.  | `filters` | `Filter[]`         | -        | optional parameter to filter the result                        |
+| 3.  | `cache`   | `boolean`          | -        | Whether to cache the value on the server - default: `false`    |
+| 3.  | `debug`   | `boolean`          | -        | Whether to log debug messages on the server - default: `false` |
+| 3.  | `config`  | `SWRConfiguration` | -        | SWR Configuration Options                                      |
+
+
+```tsx
+export const DocumentCount = () => {
+    const { data, error, isValidating, mutate } = useFrappeGetDocCount("User", 
+    /** Filters **/
+    [["enabled", "=", true]], 
+    /** Cache the result on server **/
+    false, 
+    /** Print debug logs on server **/
+    false, 
+    {
+        /** SWR Configuration Options - Optional **/
+    });
 
     if (isValidating) {
         return <>Loading</>
@@ -197,8 +343,31 @@ export const MyDocumentList = () => {
     }
     if (data) {
         return <p>
-            {JSON.stringify(data)}
+            {data} enabled users
             <Button onClick={() => mutate()}>Reload</Button>
+        </p>
+    }
+    return null
+}
+```
+
+#### Some other simpler examples (click to expand):
+<br/>
+<details><summary>Fetch total number of documents</summary><p>
+
+```tsx
+export const DocumentCount = () => {
+    const { data, error, isValidating } = useFrappeGetDocCount("User");
+
+    if (isValidating) {
+        return <>Loading</>
+    }
+    if (error) {
+        return <>{JSON.stringify(error)}</>
+    }
+    if (data) {
+        return <p>
+            {data} total users
         </p>
     }
     return null
@@ -207,12 +376,11 @@ export const MyDocumentList = () => {
 
 </p></details>
 
-
-#### Fetch number of documents with filters
+<details><summary>Fetch number of documents with filters</summary><p>
 
 ```tsx
-export const DBTest = () => {
-    const { data, error, isValidating, mutate } = useFrappeGetDocCount("User", [["enabled", "=", true]]);
+export const DocumentCount = () => {
+    const { data, error, isValidating } = useFrappeGetDocCount("User",  [["enabled", "=", true]]);
 
     if (isValidating) {
         return <>Loading</>
@@ -222,15 +390,20 @@ export const DBTest = () => {
     }
     if (data) {
         return <p>
-            {JSON.stringify(data)}
-            <Button onClick={() => mutate()}>Reload</Button>
+            {data} enabled users
         </p>
     }
     return null
 }
 ```
 
-#### Create a document
+</p></details>
+
+<br/>
+<hr/>
+<br/>
+
+### Create a document
 To create a new document, pass the name of the DocType and the fields to `createDoc`.
 ```js
 db.createDoc("My Custom DocType", {
@@ -241,8 +414,11 @@ db.createDoc("My Custom DocType", {
     .catch(error => console.error(error))
 ```
 
+<br/>
+<hr/>
+<br/>
 
-#### Update a document
+### Update a document
 To update an existing document, pass the name of the DocType, name of the document and the fields to be updated to `updateDoc`.
 ```js
 db.updateDoc("My Custom DocType", "Test", {
@@ -252,7 +428,11 @@ db.updateDoc("My Custom DocType", "Test", {
     .catch(error => console.error(error))
 ```
 
-#### Delete a document
+<br/>
+<hr/>
+<br/>
+
+### Delete a document
 To create a new document, pass the name of the DocType and the name of the document to be deleted to `deleteDoc`.
 ```js
 db.deleteDoc("My Custom DocType", "Test")
@@ -260,54 +440,13 @@ db.deleteDoc("My Custom DocType", "Test")
     .catch(error => console.error(error))
 ```
 
-## Usage with Typescript
-The library supports Typescript out of the box. 
-For example, to enforce type on the `updateDoc` method:
-
-```ts
-interface TestDoc {
-    test_field: string
-}
-db.updateDoc<TestDoc>("My Custom DocType", "Test", {
-        "test_field": "This is an updated test field."
-    })
-```
-
-The library also has an inbuilt type `FrappeDoc` which adds the following fields to your type declarations when you use it with the database methods:
-
-```ts
-export type FrappeDoc<T> = T & {
-  /** User who created the document */
-  owner: string;
-  /** Date and time when the document was created - ISO format */
-  creation: string;
-  /** Date and time when the document was last modified - ISO format */
-  modified: string;
-  /** User who last modified the document */
-  modified_by: string;
-  idx: number;
-  /** 0 - Saved, 1 - Submitted, 2 - Cancelled */
-  docstatus: 0 | 1 | 2;
-  parent?: any;
-  parentfield?: any;
-  parenttype?: any;
-  /** The primary key of the DocType table */
-  name: string;
-};
-```
-
-All document responses are returned as an intersection of `FrappeDoc` and the specified type.
+<br/>
 
 ## API Calls
 
-#### Initialise the call library
+<br/>
 
-```ts
-const call = frappe.call()
-```
-
-Make sure all endpoints are whitelisted (`@frappe.whitelist()`) in your backend
-#### GET request
+### GET request
 
 Make a GET request to your endpoint with parameters.
 
@@ -320,7 +459,12 @@ call.get('frappe.desk.search_link', searchParams)
     .then(result => console.log(result))
     .catch(error => console.error(error))
 ```
-#### POST request
+
+<br/>
+<hr/>
+<br/>
+
+### POST request
 
 Make a POST request to your endpoint with parameters.
 
@@ -335,8 +479,11 @@ call.post('frappe.client.set_value', updatedFields)
     .then(result => console.log(result))
     .catch(error => console.error(error))
 ```
+<br/>
+<hr/>
+<br/>
 
-#### PUT request
+### PUT request
 
 Make a PUT request to your endpoint with parameters.
 
@@ -352,7 +499,11 @@ call.put('frappe.client.set_value', updatedFields)
     .catch(error => console.error(error))
 ```
 
-#### DELETE request
+<br/>
+<hr/>
+<br/>
+
+### DELETE request
 
 Make a DELETE request to your endpoint with parameters.
 
@@ -366,15 +517,9 @@ call.put('frappe.client.delete', documentToBeDeleted)
     .catch(error => console.error(error))
 ```
 
+<br/>
+
 ## File Uploads
-
-#### Initialise the file library
-
-```ts
-const file = frappe.file()
-```
-
-#### Upload a file with on progress callback
 
 ```js
 const myFile; //Your File object
@@ -401,6 +546,8 @@ file.uploadFile(
         .then(() => console.log("File Upload complete"))
         .catch(e => console.error(e))
 ```
+
+<br/>
 
 ## License
 
