@@ -602,6 +602,37 @@ export const useFrappeDeleteCall = <T,>(method: string): {
     }
 }
 
+export interface FrappeFileUploadResponse {
+    /** Name of the file documnet in the database */
+    "name": string,
+    "owner": string,
+    "creation": string,
+    "modified": string,
+    "modified_by": string,
+    "docstatus": 0 | 1 | 2,
+    "idx": number,
+    /** Name of the uploaded file */
+    "file_name": string,
+    /** File is not accessible by guest users */
+    "is_private": 1 | 0,
+    "is_home_folder": 0 | 1,
+    "is_attachments_folder": 0 | 1,
+    /** File size in bytes */
+    "file_size": number,
+    /** Path of the file ex: /private/files/file_name.jpg  */
+    "file_url": string,
+    "folder": string,
+    "is_folder": 0 | 1,
+    /** Doctype the file is linked to */
+    "attached_to_doctype": string,
+    /** Document the file is linked to */
+    "attached_to_name": string,
+    "content_hash": string,
+    "uploaded_to_dropbox": 0 | 1,
+    "uploaded_to_google_drive": 0 | 1,
+    "doctype": "File"
+}
+
 /**
  * Hook to upload files to the server
  * 
@@ -609,7 +640,7 @@ export const useFrappeDeleteCall = <T,>(method: string): {
  */
 export const useFrappeFileUpload = (): {
     /** Function to upload the file */
-    upload: (file: File, args: FileArgs) => Promise<void>,
+    upload: (file: File, args: FileArgs) => Promise<FrappeFileUploadResponse>,
     /** Upload Progress in % - rounded off */
     progress: number,
     /** Will be true when the file is being uploaded  */
@@ -633,10 +664,11 @@ export const useFrappeFileUpload = (): {
         setLoading(true)
         return file.uploadFile(f, args, (c, t) => setProgress(Math.round((c / t) * 100))
         )
-            .then(() => {
+            .then((r) => {
                 setIsCompleted(true)
                 setProgress(100)
                 setLoading(false)
+                return r.data.message
             })
             .catch(e => {
                 console.error(e)
