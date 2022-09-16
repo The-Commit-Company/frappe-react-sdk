@@ -214,7 +214,7 @@ export const useFrappeCreateDoc = <T,>(): {
         setIsCompleted(false)
     }, [])
 
-    const createDoc = async (doctype: string, doc: T) => {
+    const createDoc = useCallback(async (doctype: string, doc: T) => {
         reset()
 
         return db.createDoc<T>(doctype, doc)
@@ -229,7 +229,7 @@ export const useFrappeCreateDoc = <T,>(): {
                 setError(error)
                 throw error
             })
-    }
+    }, [])
 
     return {
         createDoc,
@@ -270,7 +270,7 @@ export const useFrappeUpdateDoc = <T,>(): {
         setIsCompleted(false)
     }, [])
 
-    const updateDoc = async (doctype: string, docname: string | null, doc: Partial<T>) => {
+    const updateDoc = useCallback(async (doctype: string, docname: string | null, doc: Partial<T>) => {
         reset()
 
         return db.updateDoc<T>(doctype, docname, doc)
@@ -285,7 +285,7 @@ export const useFrappeUpdateDoc = <T,>(): {
                 setError(error)
                 throw error
             })
-    }
+    }, [])
 
     return {
         updateDoc,
@@ -326,7 +326,7 @@ export const useFrappeDeleteDoc = (): {
         setIsCompleted(false)
     }, [])
 
-    const deleteDoc = async (doctype: string, docname?: string | null): Promise<{ message: string }> => {
+    const deleteDoc = useCallback(async (doctype: string, docname?: string | null): Promise<{ message: string }> => {
         reset()
 
         return db.deleteDoc(doctype, docname)
@@ -341,7 +341,7 @@ export const useFrappeDeleteDoc = (): {
                 setError(error)
                 throw error
             })
-    }
+    }, [])
 
     return {
         deleteDoc,
@@ -447,7 +447,7 @@ export const useFrappePostCall = <T,>(method: string): {
         setIsCompleted(false)
     }, [])
 
-    const call = async (params: Record<string, any>): Promise<T> => {
+    const call = useCallback(async (params: Record<string, any>): Promise<T> => {
         reset()
 
         return frappeCall.post<T>(method, params)
@@ -463,7 +463,7 @@ export const useFrappePostCall = <T,>(method: string): {
                 setError(error)
                 throw error
             })
-    }
+    }, [])
 
     return {
         call,
@@ -511,7 +511,7 @@ export const useFrappePutCall = <T,>(method: string): {
         setIsCompleted(false)
     }, [])
 
-    const call = async (params: Record<string, any>) => {
+    const call = useCallback(async (params: Record<string, any>) => {
         reset()
 
         return frappeCall.put<T>(method, params)
@@ -527,7 +527,7 @@ export const useFrappePutCall = <T,>(method: string): {
                 setError(error)
                 throw error
             })
-    }
+    }, [])
 
     return {
         call,
@@ -575,7 +575,7 @@ export const useFrappeDeleteCall = <T,>(method: string): {
         setIsCompleted(false)
     }, [])
 
-    const call = async (params: Record<string, any>) => {
+    const call = useCallback(async (params: Record<string, any>) => {
         reset()
 
         return frappeCall.delete<T>(method, params)
@@ -591,7 +591,7 @@ export const useFrappeDeleteCall = <T,>(method: string): {
                 setError(error)
                 throw error
             })
-    }
+    }, [])
 
     return {
         call,
@@ -660,7 +660,7 @@ export const useFrappeFileUpload = (): {
     const [error, setError] = useState<Error | null>(null)
     const [isCompleted, setIsCompleted] = useState(false)
 
-    const upload = async (f: File, args: FileArgs) => {
+    const upload = useCallback(async (f: File, args: FileArgs) => {
         reset()
         setLoading(true)
         return file.uploadFile(f, args, (c, t) => setProgress(Math.round((c / t) * 100))
@@ -678,7 +678,7 @@ export const useFrappeFileUpload = (): {
                 throw e
             })
 
-    }
+    }, [])
 
     const reset = useCallback(() => {
         setProgress(0)
