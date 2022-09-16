@@ -10,8 +10,9 @@ import useSWR, { SWRConfiguration, SWRResponse } from 'swr'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
 
 
-export type { SWRConfiguration, SWRResponse } from 'swr'
+export type { SWRConfiguration, SWRResponse }
 
+export type { FrappeDoc, GetDocListArgs, Filter, FileArgs, Error }
 export interface FrappeConfig {
     /** The URL of your Frappe server */
     url: string;
