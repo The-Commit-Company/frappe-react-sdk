@@ -215,7 +215,9 @@ export const useFrappeCreateDoc = <T,>(): {
     }, [])
 
     const createDoc = useCallback(async (doctype: string, doc: T) => {
-        reset()
+        setError(null)
+        setIsCompleted(false)
+        setLoading(true)
 
         return db.createDoc<T>(doctype, doc)
             .then((document) => {
@@ -271,8 +273,9 @@ export const useFrappeUpdateDoc = <T,>(): {
     }, [])
 
     const updateDoc = useCallback(async (doctype: string, docname: string | null, doc: Partial<T>) => {
-        reset()
-
+        setError(null)
+        setIsCompleted(false)
+        setLoading(true)
         return db.updateDoc<T>(doctype, docname, doc)
             .then((document) => {
                 setLoading(false)
@@ -327,7 +330,9 @@ export const useFrappeDeleteDoc = (): {
     }, [])
 
     const deleteDoc = useCallback(async (doctype: string, docname?: string | null): Promise<{ message: string }> => {
-        reset()
+        setError(null)
+        setIsCompleted(false)
+        setLoading(true)
 
         return db.deleteDoc(doctype, docname)
             .then((message) => {
@@ -448,7 +453,10 @@ export const useFrappePostCall = <T,>(method: string): {
     }, [])
 
     const call = useCallback(async (params: Record<string, any>): Promise<T> => {
-        reset()
+        setError(null)
+        setIsCompleted(false)
+        setLoading(true)
+        setResult(null)
 
         return frappeCall.post<T>(method, params)
             .then((message) => {
@@ -512,7 +520,10 @@ export const useFrappePutCall = <T,>(method: string): {
     }, [])
 
     const call = useCallback(async (params: Record<string, any>) => {
-        reset()
+        setError(null)
+        setIsCompleted(false)
+        setLoading(true)
+        setResult(null)
 
         return frappeCall.put<T>(method, params)
             .then((message) => {
@@ -576,7 +587,10 @@ export const useFrappeDeleteCall = <T,>(method: string): {
     }, [])
 
     const call = useCallback(async (params: Record<string, any>) => {
-        reset()
+        setError(null)
+        setIsCompleted(false)
+        setLoading(true)
+        setResult(null)
 
         return frappeCall.delete<T>(method, params)
             .then((message) => {
