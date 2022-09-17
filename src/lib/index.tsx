@@ -407,7 +407,6 @@ export const useFrappeGetCall = <T,>(method: string, params?: Record<string, any
     const { call } = useContext(FrappeContext) as FrappeConfig
     const urlParams = encodeQueryData(params ?? {})
     const url = `${method}?${urlParams}`
-    console.log(url)
 
     const swrResult = useSWR<T, Error>(swrKey ?? url, () => call.get<T>(method, params), options)
 
@@ -730,12 +729,11 @@ export interface SearchResult {
   */
 export const useSearch = (doctype: string, text: string, filters: Filter[] = [], limit: number = 20, debounce: number = 250) => {
     const debouncedText = useDebounce(text, debounce);
-    // const swrResult = useSWR<{ results: SearchResult[] }>(() => `/api/method/frappe.desk.search.search_link?page_length=${limit}&doctype=${doctype}&txt=${debouncedText}&filters=${filters}`, fetcher)
     const swrResult = useFrappeGetCall<{ results: SearchResult[] }>('/api/method/frappe.desk.search.search_link', {
-        page_length: limit,
         doctype,
+        page_length: limit,
         txt: debouncedText,
-        filters
+        filters: filters ?? []
     })
     return swrResult
 }
