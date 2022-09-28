@@ -4,7 +4,7 @@ import { FrappeApp, FrappeAuth, FrappeCall } from "frappe-js-sdk";
 import { FrappeDB } from "frappe-js-sdk/lib/db";
 import { FrappeFileUpload } from "frappe-js-sdk/lib/file";
 import { Error } from 'frappe-js-sdk/lib/frappe_app/types';
-import { Filter, FrappeDoc, GetDocListArgs } from 'frappe-js-sdk/lib/db/types'
+import { Filter, FrappeDoc, GetDocListArgs, GetLastDocArgs } from 'frappe-js-sdk/lib/db/types'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import useSWR, { SWRConfiguration, SWRResponse } from 'swr'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
@@ -758,4 +758,38 @@ const useDebounce = (value: any, delay: number) => {
     }, [value, delay]);
 
     return debouncedValue;
+}
+
+/**
+ * Hook to fetch a last documents from the database
+ * 
+ * @param doctype Name of the doctype to fetch
+ * @param args Arguments to pass (filters,orderBy etc)
+ * @param options [Optional] SWRConfiguration options for fetching data
+ * @returns an object (SWRResponse) with the following properties: data, error, isValidating, and mutate
+ * 
+* @typeParam T - The type definition of the document object
+ */
+export const useFrappeGetLastDoc = <T,>(doctype: string, args?: GetLastDocArgs, options?: SWRConfiguration): SWRResponse<FrappeDoc<T>, Error> => {
+    let queryArgs: GetLastDocArgs = {
+        orderBy: {
+            field: 'creation',
+            order: 'desc'
+        }
+    };
+    if (args) {
+        queryArgs = {
+            ...queryArgs,
+            ...args
+        }
+    }
+    const { data, error } = useFrappeGetDocList<{ 'name': string }>(doctype, { ...queryArgs, limit: 1 }, options)
+    if (data) {
+        const swrResult = useFrappeGetDoc<T>(doctype, data[0].name, options)
+        return { ...swrResult }
+    }
+    if (error) {
+        return { error } as SWRResponse<FrappeDoc<T>, Error>
+    }
+    return {} as SWRResponse<FrappeDoc<T>, Error>;
 }
