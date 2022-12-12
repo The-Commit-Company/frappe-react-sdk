@@ -733,7 +733,7 @@ export const useSearch = (doctype: string, text: string, filters: Filter[] = [],
         doctype,
         page_length: limit,
         txt: debouncedText,
-        filters: filters ? JSON.stringify(filters) : []
+        filters: JSON.stringify(filters ?? [])
     })
     return swrResult
 }
