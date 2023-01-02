@@ -380,7 +380,7 @@ export const useFrappeGetDocCount = (doctype: string, filters?: Filter[], cache:
 
     const { url, db } = useContext(FrappeContext) as FrappeConfig
     const getUniqueURLKey = () => {
-        const params = encodeQueryData({ filters: filters ?? [], cache, debug })
+        const params = encodeQueryData({ doctype, filters: filters ?? [], cache, debug })
         // console.log(`${url}/api/method/frappe.client.get_count?${params.toString()}`)
         return `${url}/api/method/frappe.client.get_count?${params}`
     }
