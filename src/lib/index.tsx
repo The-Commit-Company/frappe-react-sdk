@@ -12,7 +12,7 @@ import { FileArgs } from 'frappe-js-sdk/lib/file/types';
 
 export type { SWRConfiguration, SWRResponse }
 
-export type { FrappeDoc, GetDocListArgs, Filter, FileArgs, Error }
+export type { FrappeDoc, GetDocListArgs, Filter, FileArgs, Error as FrappeError }
 export interface FrappeConfig {
     /** The URL of your Frappe server */
     url: string;
@@ -733,7 +733,7 @@ export const useSearch = (doctype: string, text: string, filters: Filter[] = [],
         doctype,
         page_length: limit,
         txt: debouncedText,
-        filters: filters ?? []
+        filters: JSON.stringify(filters ?? [])
     })
     return swrResult
 }
