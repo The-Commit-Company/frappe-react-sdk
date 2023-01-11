@@ -6,7 +6,7 @@ import { FrappeFileUpload } from "frappe-js-sdk/lib/file";
 import { Error } from 'frappe-js-sdk/lib/frappe_app/types';
 import { Filter, FrappeDoc, GetDocListArgs } from 'frappe-js-sdk/lib/db/types'
 import { useCallback, useContext, useEffect, useState } from 'react'
-import useSWR, { SWRConfiguration, SWRResponse } from 'swr'
+import useSWR, { Key, SWRConfiguration, SWRResponse } from 'swr'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
 
 
@@ -104,11 +104,11 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
  * 
  * @typeParam T - The type of the document
  */
-export const useFrappeGetDoc = <T,>(doctype: string, name?: string, options?: SWRConfiguration): SWRResponse<FrappeDoc<T>, Error> => {
+export const useFrappeGetDoc = <T,>(doctype: string, name?: string, options?: SWRConfiguration, swrKey?: Key): SWRResponse<FrappeDoc<T>, Error> => {
 
     const { db } = useContext(FrappeContext) as FrappeConfig
 
-    const swrResult = useSWR<FrappeDoc<T>, Error>(db.getRequestURL(doctype, name), () => db.getDoc<T>(doctype, name), options)
+    const swrResult = useSWR<FrappeDoc<T>, Error>(swrKey === undefined ? db.getRequestURL(doctype, name) : swrKey, () => db.getDoc<T>(doctype, name), options)
 
     return {
         ...swrResult
@@ -173,11 +173,11 @@ export const getDocListQueryString = (args?: GetDocListArgs): string => {
  * 
 * @typeParam T - The type definition of the document object
  */
-export const useFrappeGetDocList = <T,>(doctype: string, args?: GetDocListArgs, options?: SWRConfiguration): SWRResponse<T[], Error> => {
+export const useFrappeGetDocList = <T,>(doctype: string, args?: GetDocListArgs, options?: SWRConfiguration, swrKey?: Key): SWRResponse<T[], Error> => {
 
     const { db } = useContext(FrappeContext) as FrappeConfig
 
-    const swrResult = useSWR<T[], Error>(`${db.getRequestURL(doctype)}?${getDocListQueryString(args)}`, () => db.getDocList<T>(doctype, args), options)
+    const swrResult = useSWR<T[], Error>(swrKey === undefined ? `${db.getRequestURL(doctype)}?${getDocListQueryString(args)}` : swrKey, () => db.getDocList<T>(doctype, args), options)
 
     return {
         ...swrResult
@@ -376,7 +376,7 @@ function encodeQueryData(data: Record<string, any>) {
  * @returns an object (SWRResponse) with the following properties: data (number), error, isValidating, and mutate
  * 
  */
-export const useFrappeGetDocCount = (doctype: string, filters?: Filter[], cache: boolean = false, debug: boolean = false, options?: SWRConfiguration): SWRResponse<number, Error> => {
+export const useFrappeGetDocCount = (doctype: string, filters?: Filter[], cache: boolean = false, debug: boolean = false, options?: SWRConfiguration, swrKey?: Key): SWRResponse<number, Error> => {
 
     const { url, db } = useContext(FrappeContext) as FrappeConfig
     const getUniqueURLKey = () => {
@@ -384,7 +384,7 @@ export const useFrappeGetDocCount = (doctype: string, filters?: Filter[], cache:
         // console.log(`${url}/api/method/frappe.client.get_count?${params.toString()}`)
         return `${url}/api/method/frappe.client.get_count?${params}`
     }
-    const swrResult = useSWR<number, Error>(getUniqueURLKey(), () => db.getCount(doctype, filters, cache, debug), options)
+    const swrResult = useSWR<number, Error>(swrKey === undefined ? getUniqueURLKey() : swrKey, () => db.getCount(doctype, filters, cache, debug), options)
 
     return {
         ...swrResult
