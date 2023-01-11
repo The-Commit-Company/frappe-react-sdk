@@ -402,7 +402,7 @@ export const useFrappeGetDocCount = (doctype: string, filters?: Filter[], cache:
  * @typeParam T - Type of the data returned by the method
  * @returns an object (SWRResponse) with the following properties: data (number), error, isValidating, and mutate
  */
-export const useFrappeGetCall = <T,>(method: string, params?: Record<string, any>, swrKey?: string, options?: SWRConfiguration): SWRResponse<T, Error> => {
+export const useFrappeGetCall = <T,>(method: string, params?: Record<string, any>, swrKey?: Key, options?: SWRConfiguration): SWRResponse<T, Error> => {
 
     const { call } = useContext(FrappeContext) as FrappeConfig
     const urlParams = encodeQueryData(params ?? {})
