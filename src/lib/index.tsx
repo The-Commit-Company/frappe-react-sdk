@@ -10,7 +10,7 @@ import useSWR, { Key, SWRConfiguration, SWRResponse } from 'swr'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
 
 
-export type { SWRConfiguration, SWRResponse }
+export type { SWRConfiguration, SWRResponse, Key }
 
 export type { FrappeDoc, GetDocListArgs, Filter, FileArgs, Error as FrappeError }
 export interface FrappeConfig {
