@@ -10,7 +10,7 @@ import useSWR, { Key, SWRConfiguration, SWRResponse } from 'swr'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
 
 
-export type { SWRConfiguration, SWRResponse }
+export type { SWRConfiguration, SWRResponse, Key }
 
 export type { FrappeDoc, GetDocListArgs, Filter, FileArgs, Error as FrappeError }
 export interface FrappeConfig {
@@ -104,7 +104,7 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
  * 
  * @typeParam T - The type of the document
  */
-export const useFrappeGetDoc = <T,>(doctype: string, name?: string, options?: SWRConfiguration, swrKey?: Key): SWRResponse<FrappeDoc<T>, Error> => {
+export const useFrappeGetDoc = <T,>(doctype: string, name?: string, swrKey?: Key, options?: SWRConfiguration): SWRResponse<FrappeDoc<T>, Error> => {
 
     const { db } = useContext(FrappeContext) as FrappeConfig
 
@@ -173,7 +173,7 @@ export const getDocListQueryString = (args?: GetDocListArgs): string => {
  * 
 * @typeParam T - The type definition of the document object
  */
-export const useFrappeGetDocList = <T,>(doctype: string, args?: GetDocListArgs, options?: SWRConfiguration, swrKey?: Key): SWRResponse<T[], Error> => {
+export const useFrappeGetDocList = <T,>(doctype: string, args?: GetDocListArgs, swrKey?: Key, options?: SWRConfiguration): SWRResponse<T[], Error> => {
 
     const { db } = useContext(FrappeContext) as FrappeConfig
 
@@ -376,7 +376,7 @@ function encodeQueryData(data: Record<string, any>) {
  * @returns an object (SWRResponse) with the following properties: data (number), error, isValidating, and mutate
  * 
  */
-export const useFrappeGetDocCount = (doctype: string, filters?: Filter[], cache: boolean = false, debug: boolean = false, options?: SWRConfiguration, swrKey?: Key): SWRResponse<number, Error> => {
+export const useFrappeGetDocCount = (doctype: string, filters?: Filter[], cache: boolean = false, debug: boolean = false, swrKey?: Key, options?: SWRConfiguration): SWRResponse<number, Error> => {
 
     const { url, db } = useContext(FrappeContext) as FrappeConfig
     const getUniqueURLKey = () => {
@@ -408,7 +408,7 @@ export const useFrappeGetCall = <T,>(method: string, params?: Record<string, any
     const urlParams = encodeQueryData(params ?? {})
     const url = `${method}?${urlParams}`
 
-    const swrResult = useSWR<T, Error>(swrKey ?? url, () => call.get<T>(method, params), options)
+    const swrResult = useSWR<T, Error>(swrKey === undefined ? url : swrKey, () => call.get<T>(method, params), options)
 
     return {
         ...swrResult
