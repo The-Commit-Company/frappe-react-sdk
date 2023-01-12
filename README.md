@@ -50,6 +50,8 @@ You can use [frappe-js-sdk](https://github.com/nikkothari22/frappe-js-sdk) to in
 | -------------- | ----------------------------------------------- | --------------------------------------------------- |
 | Nikhil Kothari | [nikkothari22](https://github.com/nikkothari22) | [@nik_kothari22](https://twitter.com/nik_kothari22) |
 | Janhvi Patil   | [janhvipatil](https://github.com/janhvipatil)   | [@janhvipatil_](https://twitter.com/janhvipatil_)   |
+| Sumit Jain     | [sumitjain236](https://github.com/sumitjain236) |                                                     |
+
 
 <br/>
 
@@ -138,13 +140,14 @@ Parameters:
 | --- | --------- | ------------------ | -------- | ------------------------- |
 | 1.  | `doctype` | `string`           | ✅        | Name of the doctype       |
 | 2.  | `docname` | `string`           | ✅        | Name of the document      |
-| 3.  | `options` | `SWRConfiguration` | -        | SWR Configuration Options |
+| 3.  | `swrKey`  | `Key`              | -        | SWR Key                   |
+| 4.  | `options` | `SWRConfiguration` | -        | SWR Configuration Options |
 
 
 
 ```tsx
 export const MyDocumentData = () => {
-    const { data, error, isValidating, mutate } = useFrappeGetDoc<T>("User", "Administrator", {
+    const { data, error, isValidating, mutate } = useFrappeGetDoc<T>("User", "Administrator",/** SWR Key :string | ArgumentsTuple | Record<any, any> |         null | undefined | false  - Optional **/ {
         /** SWR Configuration Options - Optional **/
     });
 
@@ -179,6 +182,7 @@ Parameters:
 | --- | --------- | ------------------ | -------- | --------------------------------------------------------------------------------------------------- |
 | 1.  | `doctype` | `string`           | ✅        | Name of the doctype                                                                                 |
 | 2.  | `args`    | `GetDocListArgs`   | -        | optional parameter (object) to sort, filter, paginate and select the fields that you want to fetch. |
+| 3.  | `swrKey`  | `Key`              | -        | SWR Key                                                                                             |
 | 3.  | `options` | `SWRConfiguration` | -        | SWR Configuration Options                                                                           |
 
 
@@ -205,6 +209,8 @@ export const MyDocumentList = () => {
         /** Fetch documents as a dictionary */
         asDict: false
     },
+    /** SWR Key - Optional **/
+    
     {
         /** SWR Configuration Options - Optional **/
     });
@@ -319,6 +325,7 @@ Parameters:
 | 2.  | `filters` | `Filter[]`         | -        | optional parameter to filter the result                        |
 | 3.  | `cache`   | `boolean`          | -        | Whether to cache the value on the server - default: `false`    |
 | 3.  | `debug`   | `boolean`          | -        | Whether to log debug messages on the server - default: `false` |
+| 3.  | `swrKey`  | `Key`              | -        | SWR Key                                                        |
 | 3.  | `config`  | `SWRConfiguration` | -        | SWR Configuration Options                                      |
 
 
