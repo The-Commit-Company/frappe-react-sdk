@@ -142,7 +142,7 @@ export const MyDocumentData = () => {
   const { data, error, isValidating, mutate } = useFrappeGetDoc<T>(
     'User',
     'Administrator',
-    /** SWR Key :string | ArgumentsTuple | Record<any, any> |         null | undefined | false  - Optional **/ {
+    /** SWR Key :string | ArgumentsTuple | Record<any, any> | null | undefined | false  - Optional **/ {
       /** SWR Configuration Options - Optional **/
     }
   );
