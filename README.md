@@ -99,10 +99,17 @@ The hook uses `useSWR` under the hood to make the `get_current_user` API call - 
 
 ```jsx
 export const MyAuthComponent = () => {
-  const { currentUser, isValidating, login, logout, error, updateCurrentUser } =
-    useFrappeAuth();
+  const {
+    currentUser,
+    isValidating,
+    isLoading,
+    login,
+    logout,
+    error,
+    updateCurrentUser,
+  } = useFrappeAuth();
 
-  if (!currentUser && !error) return <div>loading...</div>;
+  if (isLoading) return <div>loading...</div>;
 
   // render user
   return (
@@ -139,7 +146,7 @@ Parameters:
 
 ```tsx
 export const MyDocumentData = () => {
-  const { data, error, isValidating, mutate } = useFrappeGetDoc<T>(
+  const { data, error, isLoading, isValidating, mutate } = useFrappeGetDoc<T>(
     'User',
     'Administrator',
     /** SWR Key :string | ArgumentsTuple | Record<any, any> | null | undefined | false  - Optional **/ {
@@ -147,7 +154,7 @@ export const MyDocumentData = () => {
     }
   );
 
-  if (!data && !error) {
+  if (isLoading) {
     return <>Loading</>;
   }
   if (error) {
@@ -183,35 +190,36 @@ Parameters:
 
 ```tsx
 export const MyDocumentList = () => {
-  const { data, error, isValidating, mutate } = useFrappeGetDocList<T>(
-    'DocType',
-    {
-      /** Fields to be fetched - Optional */
-      fields: ['name', 'creation'],
-      /** Filters to be applied - SQL AND operation */
-      filters: [['creation', '>', '2021-10-09']],
-      /** Filters to be applied - SQL OR operation */
-      orFilters: [],
-      /** Fetch from nth document in filtered and sorted list. Used for pagination  */
-      limit_start: 5,
-      /** Number of documents to be fetched. Default is 20  */
-      limit: 10,
-      /** Sort results by field and order  */
-      orderBy: {
-        field: 'creation',
-        order: 'desc',
+  const { data, error, isLoading, isValidating, mutate } =
+    useFrappeGetDocList<T>(
+      'DocType',
+      {
+        /** Fields to be fetched - Optional */
+        fields: ['name', 'creation'],
+        /** Filters to be applied - SQL AND operation */
+        filters: [['creation', '>', '2021-10-09']],
+        /** Filters to be applied - SQL OR operation */
+        orFilters: [],
+        /** Fetch from nth document in filtered and sorted list. Used for pagination  */
+        limit_start: 5,
+        /** Number of documents to be fetched. Default is 20  */
+        limit: 10,
+        /** Sort results by field and order  */
+        orderBy: {
+          field: 'creation',
+          order: 'desc',
+        },
+        /** Fetch documents as a dictionary */
+        asDict: false,
       },
-      /** Fetch documents as a dictionary */
-      asDict: false,
-    },
-    /** SWR Key - Optional **/
+      /** SWR Key - Optional **/
 
-    {
-      /** SWR Configuration Options - Optional **/
-    }
-  );
+      {
+        /** SWR Configuration Options - Optional **/
+      }
+    );
 
-  if (!data && !error) {
+  if (isLoading) {
     return <>Loading</>;
   }
   if (error) {
@@ -243,9 +251,10 @@ In this case, only the `name` attribute will be fetched.
 
 ```tsx
 export const MyDocumentList = () => {
-  const { data, error, isValidating } = useFrappeGetDocList<string>('User');
+  const { data, error, isLoading, isValidating, mutate } =
+    useFrappeGetDocList<string>('User');
 
-  if (!data && !error) {
+  if (isLoading) {
     return <>Loading</>;
   }
   if (error) {
@@ -275,7 +284,7 @@ type UserItem = {
 }
 export const MyDocumentList = () => {
     const [pageIndex, setPageIndex] = useState(0)
-    const { data, error, isValidating } = useFrappeGetDocList<UserItem>("User" , {
+    const { data, error, isLoading, isValidating, mutate } = useFrappeGetDocList<UserItem>("User" , {
         fields: ["name", "email"],
         limit_start: pageIndex,
         /** Number of documents to be fetched. Default is 20  */
@@ -287,7 +296,7 @@ export const MyDocumentList = () => {
         }
     });
 
-    if (!data && !error) {
+    if (isLoading) {
         return <>Loading</>
     }
     if (error) {
@@ -330,7 +339,7 @@ Parameters:
 
 ```tsx
 export const DocumentCount = () => {
-  const { data, error, isValidating, mutate } = useFrappeGetDocCount(
+  const { data, error, isLoading, isValidating, mutate } = useFrappeGetDocCount(
     'User',
     /** Filters **/
     [['enabled', '=', true]],
@@ -343,7 +352,7 @@ export const DocumentCount = () => {
     }
   );
 
-  if (!data && !error) {
+  if (isLoading) {
     return <>Loading</>;
   }
   if (error) {
@@ -368,9 +377,10 @@ export const DocumentCount = () => {
 
 ```tsx
 export const DocumentCount = () => {
-  const { data, error, isValidating } = useFrappeGetDocCount('User');
+  const { data, error, isLoading, isValidating, mutate } =
+    useFrappeGetDocCount('User');
 
-  if (!data && !error) {
+  if (isLoading) {
     return <>Loading</>;
   }
   if (error) {
@@ -389,11 +399,12 @@ export const DocumentCount = () => {
 
 ```tsx
 export const DocumentCount = () => {
-  const { data, error, isValidating } = useFrappeGetDocCount('User', [
-    ['enabled', '=', true],
-  ]);
+  const { data, error, isLoading, isValidating, mutate } = useFrappeGetDocCount(
+    'User',
+    [['enabled', '=', true]]
+  );
 
-  if (!data && !error) {
+  if (isLoading) {
     return <>Loading</>;
   }
   if (error) {
