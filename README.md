@@ -45,11 +45,11 @@ You can use [frappe-js-sdk](https://github.com/nikkothari22/frappe-js-sdk) to in
 
 ## Maintainers
 
-| Maintainer     | GitHub                                          | Social                                              |
-| -------------- | ----------------------------------------------- | --------------------------------------------------- |
-| Nikhil Kothari | [nikkothari22](https://github.com/nikkothari22) | [@nik_kothari22](https://twitter.com/nik_kothari22) |
-| Janhvi Patil   | [janhvipatil](https://github.com/janhvipatil)   | [@janhvipatil\_](https://twitter.com/janhvipatil_)  |
-| Sumit Jain     | [sumitjain236](https://github.com/sumitjain236) |                                                     |
+| Maintainer     | GitHub                                          | Social                                                          |
+| -------------- | ----------------------------------------------- | ---------------------------------------------------             |
+| Nikhil Kothari | [nikkothari22](https://github.com/nikkothari22) | [@nik_kothari22](https://twitter.com/nik_kothari22)             |
+| Janhvi Patil   | [janhvipatil](https://github.com/janhvipatil)   | [@janhvipatil\_](https://twitter.com/janhvipatil_)              |
+| Sumit Jain     | [sumitjain236](https://github.com/sumitjain236) | [@sumit_jain](https://www.linkedin.com/in/sumit-jain-66bb5719a/)|
 
 <br/>
 
