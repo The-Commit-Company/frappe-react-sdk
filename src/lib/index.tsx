@@ -8,7 +8,7 @@ import { Filter, FrappeDoc, GetDocListArgs } from 'frappe-js-sdk/lib/db/types'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import useSWR, { Key, SWRConfiguration, SWRResponse } from 'swr'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
-import { DexieDatabase, lastFetchType, modifiedType } from "./db";
+import { DexieDatabase } from "./db";
 
 
 export type { SWRConfiguration, SWRResponse, Key }
@@ -23,6 +23,20 @@ export interface FrappeConfig {
     call: FrappeCall,
     file: FrappeFileUpload
 }
+
+export interface lastFetchType {
+    _id: string;
+    name: string;
+    doctype: string;
+    lastFetchedOn: Date;
+    modified: string;
+    count: number;
+    data: any;
+}
+export interface modifiedType {
+    modified: string;
+}
+
 export const FrappeContext = createContext<null | FrappeConfig>(null)
 
 type FrappeProviderProps = PropsWithChildren<{ url?: string }>
