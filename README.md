@@ -824,13 +824,13 @@ The `useFrappeGetCallOffline` hook can be used to fetch data from Frappe, store 
 
 Parameters:
 
-| No. | Variable       | type                 | Required | Description          |
-| --- | -------------- | -------------------- | -------- | -------------------- | --------------------- |
-| 1.  | `method`       | `string`             | ✅       | Name of the method   |
-| 2.  | `param`        | `Record<string,any>` | ✅       | Name of the document |
-| 3.  | `lastModified` | `string              | Date`    | -                    | Date of last modified |
-| 4.  | `databaseName` | `string`             | -        | Name of database     |
-| 5.  | `version`      | `number`             | -        | Version of database  |
+| No. | Variable       | type                 | Required | Description           |
+| --- | -------------- | -------------------- | -------- | --------------------- |
+| 1.  | `method`       | `string`             | ✅       | Name of the method    |
+| 2.  | `param`        | `Record<string,any>` | ✅       | Name of the document  |
+| 3.  | `lastModified` | `string`&vert;`Date` | -        | Date of last modified |
+| 4.  | `databaseName` | `string`             | -        | Name of database      |
+| 5.  | `version`      | `number`             | -        | Version of database   |
 
 ```tsx
 export const MyDocumentDataOffline = () => {
@@ -885,7 +885,3 @@ If `shouldLoad` is `true` then proceeds to fetch data from the server using the 
 ## License
 
 See [LICENSE](./LICENSE).
-
-```
-
-```
