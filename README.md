@@ -627,9 +627,9 @@ export const MyDocumentDataOffline = () => {
 };
 ```
 
-#### See Explnation (click to expand):
-
-<details><p>
+<details>
+#### <summary>See Explnation (click to expand):</summary>
+<p>
 
 The `useFrappeGetDocOffline` hook is used for fetching, storing, and syncing a document in IndexedDB. It takes in four parameters: `doctype`, `name`, `databaseName`, and `version`. The `doctype` parameter is the doctype of the document to be fetched, the `name` parameter is the name of the document, `databaseName` is an optional parameter for the name of the database to use, and `version` is an optional parameter for the version of the database to be used.
 
@@ -712,9 +712,9 @@ export const MyDocumentListOffline = () => {
 };
 ```
 
-#### See Explnation (click to expand):
-
-<details><p>
+<details>
+#### <summary>See Explnation (click to expand):</summary>
+<p>
 
 The `useFrappeGetDocListOffline` hook is used for fetching, storing, and syncing a list of documents in IndexedDB. It takes in four parameters: `doctype`, `args`, `databaseName`, and `version`. The `doctype` parameter is the name of the doctype to fetch, the `args` parameter is an object that contains the arguments to pass (filters, pagination, etc), `databaseName` is an optional parameter for the name of the database to use, and `version` is an optional parameter for the version of the database to be used.
 
@@ -782,6 +782,22 @@ export const MyDocumentDataOffline = () => {
   return null;
 };
 ```
+
+<details>
+#### <summary>See Explnation (click to expand):</summary>
+<p>
+
+The `useFrappeGetCallOffline` hook is used for fetching, storing, and syncing data from IndexedDB for the "Get Call" method. It takes in five parameters: `method`, `params`, `lastModified`, `databaseName`, and `version`. The `method` parameter is the name of the method to call (will be dotted path e.g. "frappe.client.get_list"), the `params` parameter is an optional object that contains the parameters to pass to the `method`, `lastModified` is an optional parameter for the last modified date of the data, `databaseName` is an optional parameter for the name of the database to use, and `version` is an optional parameter for the version of the database to be used.
+
+The hook returns an object (`SWRResponse`) with the following properties: `data`, `error`, `isLoading` `isValidating`, and `mutate`. The type of the data returned by the method is passed as a type parameter `T`.
+
+The hook first checks if the data is in IndexedDB. If data not present is sets `shouldLoad` state to `true`. If the data is present, it proceeds to check if the data is modified.
+
+If the last modified date provided as parameter is different from the last modified date fetched from the IndexDB, it set `shouldLoad` to `true`.
+
+If `shouldLoad` is `true` then proceeds to fetch data from the server using the `useFrappeGetCall` hook.
+
+</p></details>
 
 <hr/>
 <br/>
