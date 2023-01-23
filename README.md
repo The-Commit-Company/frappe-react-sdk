@@ -666,25 +666,33 @@ file.uploadFile(
 
 ## [Frappe-React-IndexDB](https://github.com/sumitjain236/frappe-react-indexdb)
 
-This package is a wrapper around [Frappe-React] and [IndexedDB] to provide a simple way to cache data from Frappe in the browser. The default database name is `frappe-react-indexdb` and the default version is `1`. The package also provides a way to sync data from Frappe to IndexDB.
+This package is a wrapper around Frappe-React and IndexedDB to provide a simple way to cache data from Frappe in the browser. The default database name is `frappe-react-indexdb` and the default version is `1`. The package also provides a way to sync data from Frappe to IndexDB.
 
 ### Fetch Documents and store in IndexedDB
 
-The `useFrappeGetDocOffline` hook can be used to fetch documents from Frappe, store them in IndexedDB and sync the data.The hook uses `useFrappeGetDocOffline` under the hook and it's configuration can be passed to it.
+The `useFrappeGetDocOffline` hook can be used to fetch documents from Frappe, store them in IndexedDB and sync the data.The hook uses `useFrappeGetDoc` under the hook and it's configuration can be passed to it.
+
+```tsx
+import {
+  useFrappeGetDocOffline,
+  useFrappeGetDocListOffline,
+  useFrappeGetCallOffline,
+} from 'frappe-react-indexdb';
+```
 
 Parameters:
 
 | No. | Variable       | type     | Required | Description          |
 | --- | -------------- | -------- | -------- | -------------------- |
 | 1.  | `doctype`      | `string` | ✅       | Name of the doctype  |
-| 2.  | `docname`      | `string` | ✅       | Name of the document |
+| 2.  | `name`         | `string` | ✅       | Name of the document |
 | 3.  | `databaseName` | `string` | -        | Name of database     |
 | 4.  | `version`      | `number` | -        | Version of database  |
 
 ```tsx
 export const MyDocumentDataOffline = () => {
   const { data, error, isLoading, isValidating, mutate } =
-    useFrappeGetDoOffline<T>(
+    useFrappeGetDocOffline<T>(
       'User',
       'Administrator',
       /*** Database Name [Optional]***/ 'my-database',
@@ -716,24 +724,23 @@ The `useFrappeGetDocOffline` hook is used for fetching, storing, and syncing a d
 
 The hook returns an object (`SWRResponse`) with the following properties: `data`, `error`, `isLoading`, `isValidating`, and `mutate`. The type of the document to fetch is passed as a type parameter `T`.
 
-The hook first checks if the data is in IndexedDB. If the data is present, it proceeds to check for the latest timestamp. If the data is not present, it set `shouldLoad` to `true`. The hook uses the `useGetLastFetched` hook to check the last fetched data in IndexedDB.
+The hook first checks if the data is in IndexedDB. If the data is present, it proceeds to check for the latest timestamp. If the data is not present, it set `shouldLoad` to `true`.
 
 If data is in IndexDB then it checks for last fetched timestamp, if the last fetched timestamp is different from the timestamp fetched from the Frappe server, the hook sets a state variable `shouldLoad` to `true`.
 
-If `shouldLoad` is `true` then proceeds to fetch data from the server using the `useFrappeGetDocList` hook.
+If `shouldLoad` is `true` then proceeds to fetch data from the server using the `useFrappeGetDoc` hook and stores the data in IndexedDB.
 
-The hook also stores the data in IndexedDB if it is fetched from the server. The hook also has a `forceRefresh` function which, when called, refetches the data from the server.
+The hook also has a `mutate` function which, when called, refetches the data from the server.
 
 Overall the hook uses IndexedDB and server to fetch the latest data and store it for offline use case. It also provides a way to force refresh the data.
 
 </p></details>
 
-<hr/>
 <br/>
 
 ### Fetch list of documents and store in IndexedDB
 
-The `useFrappeGetListOffline` hook can be used to fetch list of documents from Frappe, store them in IndexedDB and sync the data.The hook uses `useFrappeGetListOffline` under the hook and it's configuration can be passed to it.
+The `useFrappeDocGetListOffline` hook can be used to fetch list of documents from Frappe, store them in IndexedDB and sync the data.The hook uses `useFrappeDocGetListOffline` under the hook and it's configuration can be passed to it.
 
 Parameters:
 
@@ -800,15 +807,15 @@ The `useFrappeGetDocListOffline` hook is used for fetching, storing, and syncing
 
 The hook returns an object (`SWRResponse`) with the following properties: `data`, `error`, `isLoading`, `isValidating`, and `mutate`. The type definition of the document object to fetch is passed as a type parameter `T`.
 
-The hook first checks if the data is in IndexedDB. If the data is not present, it set `shouldLoad` to `true`. If the data is present, it proceeds to check for the latest count, it fetches the count from the Frappe server for comparison. The hook uses the `useGetLastFetched` hook to check the last fetched data in IndexedDB.
+The hook first checks if the data is in IndexedDB. If the data is not present, it set `shouldLoad` to `true`. If the data is present, it proceeds to check for the latest count, it fetches the count from the Frappe server for comparison.
 
-If the last fetched count is different from the count fetched from the Frappe server, it set `shouldLoad` to `true`. If same then the hook fetch timestamp from frappe for document for comparison.
+If the last fetched count is different from the latest fetched count from the Frappe server, then set `shouldLoad` to `true`. If both count are same then the hook fetch timestamp from frappe.
 
 If the last fetched timestamp is different from the timestamp fetched from the Frappe server, the hook sets a state variable `shouldLoad` to `true`.
 
-If `shouldLoad` is `true` then proceeds to fetch data from the server using the `useFrappeGetDocList` hook.
+If `shouldLoad` is `true` then proceeds to fetch data from the server using the `useFrappeGetDocList` hook and stores the data in IndexedDB.
 
-The hook also stores the data in IndexedDB if it is fetched from the server. The hook also has a mutate function which, when called, refetches the data from the server.
+The hook also has a `mutate` function which, when called, refetches the data from the server.
 
 Overall the hook uses IndexedDB and server to fetch the latest data and store it for offline use case. It also provides a way to force refresh the data.
 
@@ -820,7 +827,7 @@ Type declarations are available for the second argument and will be shown to you
 
 ### Get API Call and store in IndexedDB
 
-The `useFrappeGetCallOffline` hook can be used to fetch data from Frappe, store them in IndexedDB and sync the data.The hook uses `useFrappeGetCall` under the hook and it's configuration can be passed to it. `lastModified` is the Date of the last time when data was updated in the database related to that method. We can mutate() the hook to sync the data from Frappe to IndexedDB base on our condition or we can pass Date when any document get updated related to method.
+The `useFrappeGetCallOffline` hook can be used to fetch data from Frappe, store them in IndexedDB and sync the data.The hook uses `useFrappeGetCall` under the hook and it's configuration can be passed to it. `lastModified` is the Date of the last time when data was updated in the database related to that method. We can mutate the hook to sync the data from Frappe to IndexedDB base on our condition or we can pass Date when any document get updated related to method.
 
 Parameters:
 
@@ -833,10 +840,12 @@ Parameters:
 | 5.  | `version`      | `number`             | -        | Version of database   |
 
 ```tsx
-export const MyDocumentDataOffline = () => {
+export const MyDocumentCallOffline = () => {
   const { data, error, isLoading, isValidating, mutate } =
     useFrappeGetCallOffline<T>(
+      /*** method **/
       'frappe.client.get_list',
+      /*** param ***/
       {
         doctype: 'User',
         filters: [['creation', '>', '2021-10-09']],
@@ -875,11 +884,13 @@ The hook first checks if the data is in IndexedDB. If data not present is sets `
 
 If the last modified date provided as parameter is different from the last modified date fetched from the IndexDB, it set `shouldLoad` to `true`.
 
-If `shouldLoad` is `true` then proceeds to fetch data from the server using the `useFrappeGetCall` hook.
+If `shouldLoad` is `true` then proceeds to fetch data from the server using the `useFrappeGetCall` hook and stores the data in IndexedDB.
+
+The hook also has a `mutate` function which, when called, refetches the data from the server.
+
+Overall the hook uses IndexedDB and server to fetch the latest data and store it for offline use case. It also provides a way to force refresh the data.
 
 </p></details>
-
-<hr/>
 <br/>
 
 ## License
