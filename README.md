@@ -476,15 +476,34 @@ db.deleteDoc('My Custom DocType', 'Test')
 
 Make a GET request to your endpoint with parameters.
 
-```js
-const searchParams = {
-  doctype: 'Currency',
-  txt: 'IN',
+```tsx
+export const MyDocumentGetCall = () => {
+  const { data, error, isLoading, isValidating, mutate } = useFrappeGetDocCall(
+    /** method **/
+    'frappe.client.get_value',
+    /** params **/
+    {
+      doctype: 'User',
+      fieldname: 'interest',
+      filters: {
+        name: 'Administrator',
+      },
+    }
+    /** SWR Key - Optional **/
+    /** SWR Configuration Options - Optional **/
+  );
+
+  if (isLoading) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (data) {
+    return <p>{data.message}</p>;
+  }
+  return null;
 };
-call
-  .get('frappe.desk.search_link', searchParams)
-  .then((result) => console.log(result))
-  .catch((error) => console.error(error));
 ```
 
 <br/>
@@ -495,17 +514,38 @@ call
 
 Make a POST request to your endpoint with parameters.
 
-```js
-const updatedFields = {
-  doctype: 'User',
-  name: 'Administrator',
-  fieldname: 'interest',
-  value: 'Frappe Framework, ERPNext',
+```tsx
+export const MyDocumentPostCall = () => {
+  const { call, result, loading, isCompleted, reset } = useFrapePostDocCall(
+    /** method **/
+    'frappe.client.set_value'
+  );
+
+  const generateRandomNumber = () => {
+    call({
+      //** params **/
+      doctype: 'User',
+      name: 'Administrator',
+      fieldname: 'interest',
+      value: Math.random(),
+    });
+  };
+
+  const resetCall = () => {
+    reset();
+  };
+
+  if (loading) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (result) {
+    return <p>{result}</p>;
+  }
+  return null;
 };
-call
-  .post('frappe.client.set_value', updatedFields)
-  .then((result) => console.log(result))
-  .catch((error) => console.error(error));
 ```
 
 <br/>
@@ -516,17 +556,38 @@ call
 
 Make a PUT request to your endpoint with parameters.
 
-```js
-const updatedFields = {
-  doctype: 'User',
-  name: 'Administrator',
-  fieldname: 'interest',
-  value: 'Frappe Framework, ERPNext',
+```tsx
+export const MyDocumentPutCall = () => {
+  const { call, result, loading, isCompleted, reset } = useFrapePutDocCall(
+    /** method **/
+    'frappe.client.set_value'
+  );
+
+  const generateRandomNumber = () => {
+    call({
+      //** params **/
+      doctype: 'User',
+      name: 'Administrator',
+      fieldname: 'interest',
+      value: Math.random(),
+    });
+  };
+
+  const resetCall = () => {
+    reset();
+  };
+
+  if (loading) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (result) {
+    return <p>{result}</p>;
+  }
+  return null;
 };
-call
-  .put('frappe.client.set_value', updatedFields)
-  .then((result) => console.log(result))
-  .catch((error) => console.error(error));
 ```
 
 <br/>
@@ -537,15 +598,36 @@ call
 
 Make a DELETE request to your endpoint with parameters.
 
-```js
-const documentToBeDeleted = {
-  doctype: 'Tag',
-  name: 'Random Tag',
+```tsx
+export const MyDocumentDeleteCall = () => {
+  const { call, result, loading, isCompleted, reset } = useFrapeDeleteDocCall(
+    /** method **/
+    'frappe.client.delete'
+  );
+
+  const deleteDoc = () => {
+    call({
+      //** params **/
+      doctype: 'User',
+      name: 'Administrator',
+    });
+  };
+
+  const resetCall = () => {
+    reset();
+  };
+
+  if (loading) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (result) {
+    return <p>{result}</p>;
+  }
+  return null;
 };
-call
-  .put('frappe.client.delete', documentToBeDeleted)
-  .then((result) => console.log(result))
-  .catch((error) => console.error(error));
 ```
 
 <br/>
@@ -736,7 +818,7 @@ Type declarations are available for the second argument and will be shown to you
 <br/>
 <br/>
 
-### Get API Call
+### Get API Call and store in IndexedDB
 
 The `useFrappeGetCallOffline` hook can be used to fetch data from Frappe, store them in IndexedDB and sync the data.The hook uses `useFrappeGetCall` under the hook and it's configuration can be passed to it. `lastModified` is the Date of the last time when data was updated in the database related to that method. We can mutate() the hook to sync the data from Frappe to IndexedDB base on our condition or we can pass Date when any document get updated related to method.
 
@@ -803,10 +885,6 @@ If `shouldLoad` is `true` then proceeds to fetch data from the server using the 
 ## License
 
 See [LICENSE](./LICENSE).
-
-```
-
-```
 
 ```
 
