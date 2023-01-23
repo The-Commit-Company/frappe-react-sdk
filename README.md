@@ -677,7 +677,7 @@ import {
   useFrappeGetDocOffline,
   useFrappeGetDocListOffline,
   useFrappeGetCallOffline,
-} from 'frappe-react-indexdb';
+} from 'frappe-react-sdk';
 ```
 
 Parameters:
@@ -820,8 +820,6 @@ The hook also has a `mutate` function which, when called, refetches the data fro
 Overall the hook uses IndexedDB and server to fetch the latest data and store it for offline use case. It also provides a way to force refresh the data.
 
 </p></details>
-
-Type declarations are available for the second argument and will be shown to you in your code editor.
 <br/>
 <br/>
 
