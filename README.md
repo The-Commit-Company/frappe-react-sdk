@@ -45,11 +45,11 @@ You can use [frappe-js-sdk](https://github.com/nikkothari22/frappe-js-sdk) to in
 
 ## Maintainers
 
-| Maintainer     | GitHub                                          | Social                                                          |
-| -------------- | ----------------------------------------------- | ---------------------------------------------------             |
-| Nikhil Kothari | [nikkothari22](https://github.com/nikkothari22) | [@nik_kothari22](https://twitter.com/nik_kothari22)             |
-| Janhvi Patil   | [janhvipatil](https://github.com/janhvipatil)   | [@janhvipatil\_](https://twitter.com/janhvipatil_)              |
-| Sumit Jain     | [sumitjain236](https://github.com/sumitjain236) | [@sumit_jain](https://www.linkedin.com/in/sumit-jain-66bb5719a/)|
+| Maintainer     | GitHub                                          | Social                                                           |
+| -------------- | ----------------------------------------------- | ---------------------------------------------------------------- |
+| Nikhil Kothari | [nikkothari22](https://github.com/nikkothari22) | [@nik_kothari22](https://twitter.com/nik_kothari22)              |
+| Janhvi Patil   | [janhvipatil](https://github.com/janhvipatil)   | [@janhvipatil\_](https://twitter.com/janhvipatil_)               |
+| Sumit Jain     | [sumitjain236](https://github.com/sumitjain236) | [@sumit_jain](https://www.linkedin.com/in/sumit-jain-66bb5719a/) |
 
 <br/>
 
@@ -582,6 +582,176 @@ file.uploadFile(
 
 <br/>
 
+## [Frappe-React-IndexDB](https://github.com/sumitjain236/frappe-react-indexdb)
+
+This package is a wrapper around [Frappe-React] and [IndexedDB] to provide a simple way to cache data from Frappe in the browser. The default database name is `frappe-react-indexdb` and the default version is `1`. The package also provides a way to sync data from Frappe to IndexDB.
+
+### Fetch Documents and store in IndexedDB
+
+The `useFrappeGetDocOffline` hook can be used to fetch documents from Frappe, store them in IndexedDB and sync the data.The hook uses `useFrappeGetDocOffline` under the hook and it's configuration can be passed to it.
+
+Parameters:
+
+| No. | Variable       | type     | Required | Description          |
+| --- | -------------- | -------- | -------- | -------------------- |
+| 1.  | `doctype`      | `string` | ✅       | Name of the doctype  |
+| 2.  | `docname`      | `string` | ✅       | Name of the document |
+| 3.  | `databaseName` | `string` | -        | Name of database     |
+| 4.  | `version`      | `number` | -        | Version of database  |
+
+```tsx
+export const MyDocumentDataOffline = () => {
+  const { data, error, isLoading, isValidating, mutate } =
+    useFrappeGetDoOffline<T>(
+      'User',
+      'Administrator',
+      /*** Database Name [Optional]***/ 'my-database',
+      /*** Database Version [Optional]***/ 1
+    );
+
+  if (isLoading) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (data) {
+    return (
+      <p>
+        {JSON.stringify(data)}
+        <button onClick={() => mutate()}>Reload</button>
+      </p>
+    );
+  }
+  return null;
+};
+```
+
+<hr/>
+<br/>
+
+### Fetch list of documents and store in IndexedDB
+
+The `useFrappeGetListOffline` hook can be used to fetch list of documents from Frappe, store them in IndexedDB and sync the data.The hook uses `useFrappeGetListOffline` under the hook and it's configuration can be passed to it.
+
+Parameters:
+
+| No. | Variable       | type             | Required | Description                                                                                         |
+| --- | -------------- | ---------------- | -------- | --------------------------------------------------------------------------------------------------- |
+| 1.  | `doctype`      | `string`         | ✅       | Name of the doctype                                                                                 |
+| 2.  | `args`         | `GetDocListArgs` | -        | optional parameter (object) to sort, filter, paginate and select the fields that you want to fetch. |
+| 3.  | `databaseName` | `string`         | -        | Database Name                                                                                       |
+| 3.  | `version`      | `number`         | -        | Database Version                                                                                    |
+
+```tsx
+export const MyDocumentListOffline = () => {
+  const { data, error, isLoading, isValidating, mutate } =
+    useFrappeGetDocListOffline<T>(
+      'DocType',
+      {
+        /** Fields to be fetched - Optional */
+        fields: ['name', 'creation'],
+        /** Filters to be applied - SQL AND operation */
+        filters: [['creation', '>', '2021-10-09']],
+        /** Filters to be applied - SQL OR operation */
+        orFilters: [],
+        /** Fetch from nth document in filtered and sorted list. Used for pagination  */
+        limit_start: 5,
+        /** Number of documents to be fetched. Default is 20  */
+        limit: 10,
+        /** Sort results by field and order  */
+        orderBy: {
+          field: 'creation',
+          order: 'desc',
+        },
+        /** Fetch documents as a dictionary */
+        asDict: false,
+      },
+      /** Database Name - Optional **/
+
+      {
+        /** Version - Optional **/
+      }
+    );
+
+  if (isLoading) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (data) {
+    return (
+      <p>
+        {JSON.stringify(data)}
+        <button onClick={() => mutate()}>Reload</button>
+      </p>
+    );
+  }
+  return null;
+};
+```
+
+Type declarations are available for the second argument and will be shown to you in your code editor.
+<br/>
+<br/>
+
+### Get API Call
+
+The `useFrappeGetCallOffline` hook can be used to fetch data from Frappe, store them in IndexedDB and sync the data.The hook uses `useFrappeGetCall` under the hook and it's configuration can be passed to it. `lastModified` is the Date of the last time when data was updated in the database related to that method. We can mutate() the hook to sync the data from Frappe to IndexedDB base on our condition or we can pass Date when any document get updated related to method.
+
+Parameters:
+
+| No. | Variable | type | Required | Description |
+| 1. | `method` | `string` | ✅ | Name of the method |
+| 2. | `param` | `Record<string,any>`| - | Parameters to pass |
+| 3. | `lastModified` | `string | Date` | - | Date |
+| 4. | `databaseName` | `string` | - | Name of database |
+| 5. | `version` | `number` | - | Version of database |
+
+```tsx
+export const MyDocumentDataOffline = () => {
+  const { data, error, isLoading, isValidating, mutate } =
+    useFrappeGetCallOffline<T>(
+      'frappe.client.get_list',
+      {
+        doctype: 'User',
+        filters: [['creation', '>', '2021-10-09']],
+      },
+      /*** Last Modified Date [Optional]***/ '2021-10-09',
+      /*** Database Name [Optional]***/ 'my-database',
+      /*** Database Version [Optional]***/ 1
+    );
+
+  if (isLoading) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (data) {
+    return (
+      <p>
+        {JSON.stringify(data)}
+        <button onClick={() => mutate()}>Reload</button>
+      </p>
+    );
+  }
+  return null;
+};
+```
+
+<hr/>
+<br/>
+
 ## License
 
 See [LICENSE](./LICENSE).
+
+```
+
+```
+
+```
+
+```
