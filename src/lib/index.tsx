@@ -21,7 +21,8 @@ export interface FrappeConfig {
     auth: FrappeAuth,
     db: FrappeDB,
     call: FrappeCall,
-    file: FrappeFileUpload
+    file: FrappeFileUpload,
+    indexdb: DexieDatabase
 }
 
 export interface lastFetchType {
@@ -37,11 +38,16 @@ export interface modifiedType {
     modified: string;
 }
 
+export interface indexedDBType {
+    databaseName: string;
+    version: number;
+}
+
 export const FrappeContext = createContext<null | FrappeConfig>(null)
 
-type FrappeProviderProps = PropsWithChildren<{ url?: string }>
+type FrappeProviderProps = PropsWithChildren<{ url?: string, indexedDB?: indexedDBType }>
 
-export const FrappeProvider = ({ url = "", children }: FrappeProviderProps) => {
+export const FrappeProvider = ({ url = "", indexedDB, children }: FrappeProviderProps) => {
 
     const frappeConfig: FrappeConfig = useMemo(() => {
         //Add your Frappe backend's URL
@@ -53,7 +59,8 @@ export const FrappeProvider = ({ url = "", children }: FrappeProviderProps) => {
             auth: frappe.auth(),
             db: frappe.db(),
             call: frappe.call(),
-            file: frappe.file()
+            file: frappe.file(),
+            indexdb: new DexieDatabase(indexedDB?.databaseName, indexedDB?.version)
         }
 
     }, [url])
@@ -795,9 +802,10 @@ export const useFrappeGetDocOffline = <T,>(doctype: string, name?: string, datab
      */
 
     //Initialise database
-    const db = DexieDatabase(databaseName, version);
+    const { indexdb } = useContext(FrappeContext) as FrappeConfig
+    // const db = DexieDatabase(databaseName, version);
 
-    const lastFetched: lastFetchType | null = useGetLastFetched(db, doctype, name);
+    const lastFetched: lastFetchType | null = useGetLastFetched(indexdb, doctype, name);
 
     const lastFetchExist: boolean = lastFetched !== undefined && lastFetched !== null;
 
@@ -847,7 +855,7 @@ export const useFrappeGetDocOffline = <T,>(doctype: string, name?: string, datab
     /** Store in indexedDB if data is fetched from server */
     useEffect(() => {
         if (data) {
-            db.table("docs").put({
+            indexdb.table("docs").put({
                 _id: `${doctype}_${name}`,
                 lastFetchedOn: new Date(),
                 modified: data.modified,
@@ -857,7 +865,7 @@ export const useFrappeGetDocOffline = <T,>(doctype: string, name?: string, datab
                 count: 1,
             });
         } else if (error && lastFetchExist) {
-            db.table("docs").delete(`${doctype}_${name}`);
+            indexdb.table("docs").delete(`${doctype}_${name}`);
         }
     }, [data]);
 
@@ -898,9 +906,10 @@ export const useFrappeGetDocListOffline = <T,>(doctype: string, args?: GetDocLis
      */
 
     //Initialise database
-    const db = DexieDatabase(databaseName, version);
+    const { indexdb } = useContext(FrappeContext) as FrappeConfig
+    // const db = DexieDatabase(databaseName, version);
 
-    const lastFetchedList: lastFetchType | null = useGetLastFetched(db, doctype, getDocListQueryString(args));
+    const lastFetchedList: lastFetchType | null = useGetLastFetched(indexdb, doctype, getDocListQueryString(args));
 
     const lastFetchExist =
         lastFetchedList !== undefined && lastFetchedList !== null;
@@ -982,7 +991,7 @@ export const useFrappeGetDocListOffline = <T,>(doctype: string, args?: GetDocLis
     useEffect(() => {
         if (data) {
             console.log('Runs');
-            db.table("docs").put({
+            indexdb.table("docs").put({
                 _id: `${doctype}_${getDocListQueryString(args)}`,
                 name: `${doctype}_${getDocListQueryString(args)}`,
                 doctype: doctype,
@@ -992,7 +1001,7 @@ export const useFrappeGetDocListOffline = <T,>(doctype: string, args?: GetDocLis
                 data: { ...data },
             });
         } else if (error && lastFetchExist) {
-            db.table("docs").delete(`${doctype}_${getDocListQueryString(args)}`);
+            indexdb.table("docs").delete(`${doctype}_${getDocListQueryString(args)}`);
         }
     }, [data]);
 
@@ -1035,9 +1044,10 @@ export const useFrappeGetCallOffline = <T,>(method: string, params?: Record<stri
      */
 
     //Intialize database
-    const db = DexieDatabase(databaseName, version);
+    const { indexdb } = useContext(FrappeContext) as FrappeConfig
+    // const db = DexieDatabase(databaseName, version);
 
-    const lastFetchedData: lastFetchType | null = useGetLastFetched(db, method, encodeQueryData(params ?? {}));
+    const lastFetchedData: lastFetchType | null = useGetLastFetched(indexdb, method, encodeQueryData(params ?? {}));
 
     // Check if data is in indexedDB
     const lastFetchExist: boolean =
@@ -1075,7 +1085,7 @@ export const useFrappeGetCallOffline = <T,>(method: string, params?: Record<stri
 
     useEffect(() => {
         if (data) {
-            db.table("docs").put({
+            indexdb.table("docs").put({
                 _id: `${method}_${encodeQueryData(params ?? {})}`,
                 name: `${method}_${encodeQueryData(params ?? {})}`,
                 doctype: method,
@@ -1087,7 +1097,7 @@ export const useFrappeGetCallOffline = <T,>(method: string, params?: Record<stri
                 data: { ...data },
             });
         } else if (error && lastFetchExist) {
-            db.table("docs").delete(`${method}_${params}`);
+            indexdb.table("docs").delete(`${method}_${params}`);
         }
     }, [data]);
 
