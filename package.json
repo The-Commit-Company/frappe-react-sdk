@@ -75,8 +75,10 @@
     "vitest": "^0.23.1"
   },
   "dependencies": {
+    "@types/socket.io-client": "^3.0.0",
     "frappe-js-sdk": "^1.1.15",
     "react": ">=17.x",
+    "socket.io-client": "^4.5.4",
     "swr": "^2.0.0"
   },
   "eslintConfig": {

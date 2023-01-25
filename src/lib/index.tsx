@@ -8,6 +8,8 @@ import { Filter, FrappeDoc, GetDocListArgs } from 'frappe-js-sdk/lib/db/types'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import useSWR, { Key, SWRConfiguration, SWRResponse } from 'swr'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
+import { SocketIO } from "./socket";
+import { Socket } from "socket.io-client";
 
 
 export type { SWRConfiguration, SWRResponse, Key }
@@ -20,28 +22,39 @@ export interface FrappeConfig {
     auth: FrappeAuth,
     db: FrappeDB,
     call: FrappeCall,
-    file: FrappeFileUpload
+    file: FrappeFileUpload,
+    /** Socket connection to the Frappe*/
+    socket: Socket
 }
 export const FrappeContext = createContext<null | FrappeConfig>(null)
 
-type FrappeProviderProps = PropsWithChildren<{ url?: string }>
+type FrappeProviderProps = PropsWithChildren<{ url?: string, socket_port?: string }>
 
-export const FrappeProvider = ({ url = "", children }: FrappeProviderProps) => {
+/** FrappeProvider is a React Context Provider that provides the FrappeApp instance to all the hooks and components that are children of this component
+ * @param url [Optional] The URL of your Frappe server and it is going to be used for socket connection as well
+ * @param socket_port [Optional] The port number of your Frappe server for socket connection not required if url is provided
+ * @param children - The children of this component
+ * 
+ * @returns Returns a React Context Provider that provides the FrappeApp instance to all the hooks and components that are children of this component
+ * 
+*/
+export const FrappeProvider = ({ url, socket_port, children }: FrappeProviderProps) => {
 
     const frappeConfig: FrappeConfig = useMemo(() => {
         //Add your Frappe backend's URL
-        const frappe = new FrappeApp(url)
+        const frappe = new FrappeApp(url ?? "")
 
         return {
-            url,
+            url: url ?? "",
             app: frappe,
             auth: frappe.auth(),
             db: frappe.db(),
             call: frappe.call(),
-            file: frappe.file()
+            file: frappe.file(),
+            socket: new SocketIO(url, socket_port).socket
         }
 
-    }, [url])
+    }, [url, socket_port])
 
     return <FrappeContext.Provider value={frappeConfig}>{children}</FrappeContext.Provider>
 }
@@ -758,4 +771,34 @@ const useDebounce = (value: any, delay: number) => {
     }, [value, delay]);
 
     return debouncedValue;
+}
+
+
+/** useFrappeEventListener hook for listening to events from the server
+ * @param eventName - name of the event to listen to
+ * @param callback - callback function to be called when the event is triggered
+ * @returns void
+ * 
+ * @example
+ * ```typescript
+ * useFrappeEventListener('my_event', (data) => {
+ *     // do something with the data
+ *      if(data.status === 'success') {
+ *          console.log('success')
+ *      }
+ * })
+ * ```
+ */
+export const useFrappeEventListener = (eventName: string, callback: (eventData: any) => void) => {
+
+    const { socket } = useContext(FrappeContext) as FrappeConfig
+
+    useEffect(() => {
+        let listener = socket.on(eventName, callback)
+
+        return () => {
+            listener.off(eventName)
+        }
+    }, [eventName, callback])
+
 }
