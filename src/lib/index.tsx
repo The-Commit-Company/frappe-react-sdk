@@ -8,7 +8,7 @@ import { Filter, FrappeDoc, GetDocListArgs } from 'frappe-js-sdk/lib/db/types'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import useSWR, { Key, SWRConfiguration, SWRResponse } from 'swr'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
-import { DexieDatabase } from "./db";
+import { DexieDatabase, indexdb } from "./db";
 
 
 export type { SWRConfiguration, SWRResponse, Key }
@@ -90,7 +90,7 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
     updateCurrentUser: () => void
 } => {
 
-    const { url, auth } = useContext(FrappeContext) as FrappeConfig
+    const { url, auth, indexdb } = useContext(FrappeContext) as FrappeConfig
 
     const { data: currentUser, error, isValidating, mutate: updateCurrentUser } = useSWR<string | null, Error>(`${url}/api/method/frappe.auth.get_logged_user`, () => auth.getLoggedInUser(), options)
 
@@ -101,8 +101,14 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
         })
     }, [])
 
+    const deleteDatabase = () => {
+        if (indexdb) {
+            indexdb.delete()
+        }
+    }
+
     const logout = useCallback(async () => {
-        return auth.logout().then(() => updateCurrentUser(null))
+        return auth.logout().then(() => deleteDatabase).then(() => updateCurrentUser(null))
     }, [])
 
     return {
