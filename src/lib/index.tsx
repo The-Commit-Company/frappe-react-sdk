@@ -45,9 +45,25 @@ export interface indexedDBType {
 
 export const FrappeContext = createContext<null | FrappeConfig>(null)
 
-type FrappeProviderProps = PropsWithChildren<{ url?: string, indexedDB?: indexedDBType }>
+type FrappeProviderProps = PropsWithChildren<{ url?: string, indexDB?: indexedDBType }>
 
-export const FrappeProvider = ({ url = "", indexedDB, children }: FrappeProviderProps) => {
+/** Frappe Provider component that provides the Frappe context to all child components
+ * @param url - [Optional] The URL of your Frappe server
+ * @param indexDB - [Optional] The indexedDB configuration object with databaseName and version 
+ * @param children - The children components
+ * 
+ * @example
+ * ```tsx
+ * const indexDB = {
+ *      databaseName:'myDatabase',
+ *      version:1
+ * }
+ * <FrappeProvider url="http://localhost:8000" indexDB = indexDB>
+ *     <App />
+ * </FrappeProvider>
+ * ```
+*/
+export const FrappeProvider = ({ url = "", indexDB, children }: FrappeProviderProps) => {
 
     const frappeConfig: FrappeConfig = useMemo(() => {
         //Add your Frappe backend's URL
@@ -60,7 +76,7 @@ export const FrappeProvider = ({ url = "", indexedDB, children }: FrappeProvider
             db: frappe.db(),
             call: frappe.call(),
             file: frappe.file(),
-            indexdb: new DexieDatabase(indexedDB?.databaseName, indexedDB?.version)
+            indexdb: new DexieDatabase(indexDB?.databaseName, indexDB?.version)
         }
 
     }, [url])
@@ -794,13 +810,12 @@ const useDebounce = (value: any, delay: number) => {
  * 
  * @param doctype - the doctype to fetch
  * @param name - name of the document to fetch
- * @param databaseName [Optional] name of the database to use
- * @param version [Optional] version of the database to use
+ * 
  * @returns object (SWRResponse) with the following properties: data, error, isValidating, and mutate
  * 
  * @typeParam T - The type of the document to fetch
  */
-export const useFrappeGetDocOffline = <T,>(doctype: string, name?: string, databaseName?: string, version?: number) => {
+export const useFrappeGetDocOffline = <T,>(doctype: string, name?: string) => {
     /** 1. check if data is in indexedDB.
      * - If lastFetched is null - we are loading data from indexedDB
      * - If lastFetched is undefined - we do not have any data in indexedDB
@@ -809,7 +824,6 @@ export const useFrappeGetDocOffline = <T,>(doctype: string, name?: string, datab
 
     //Initialise database
     const { indexdb } = useContext(FrappeContext) as FrappeConfig
-    // const db = DexieDatabase(databaseName, version);
 
     const lastFetched: lastFetchType | null = useGetLastFetched(indexdb, doctype, name);
 
@@ -898,13 +912,12 @@ export const useFrappeGetDocOffline = <T,>(doctype: string, name?: string, datab
  * 
  * @param doctype Name of the doctype to fetch
  * @param args Arguments to pass (filters, pagination, etc)
- * @param databaseName [Optional] name of the database to use
- * @param version [Optional] version of the database to use
+ *
  * @returns an object (SWRResponse) with the following properties: data, error, isValidating, and mutate
  *
  * @typeParam T - The type definition of the document object to fetch
  */
-export const useFrappeGetDocListOffline = <T,>(doctype: string, args?: GetDocListArgs, databaseName?: string, version?: number) => {
+export const useFrappeGetDocListOffline = <T,>(doctype: string, args?: GetDocListArgs) => {
     /** 1. check if data is in indexedDB.
      * - If lastFetched is null - we are loading data from indexedDB
      * - If lastFetched is undefined - we do not have any data in indexedDB
@@ -913,7 +926,6 @@ export const useFrappeGetDocListOffline = <T,>(doctype: string, args?: GetDocLis
 
     //Initialise database
     const { indexdb } = useContext(FrappeContext) as FrappeConfig
-    // const db = DexieDatabase(databaseName, version);
 
     const lastFetchedList: lastFetchType | null = useGetLastFetched(indexdb, doctype, getDocListQueryString(args));
 
@@ -1035,13 +1047,12 @@ export const useFrappeGetDocListOffline = <T,>(doctype: string, args?: GetDocLis
  * @param method - name of the method to call (will be dotted path e.g. "frappe.client.get_list")
  * @param params [Optional] parameters to pass to the method
  * @param lastModified [Optional] last modified date of the data
- * @param databaseName [Optional] name of the database
- * @param version [Optional] version of the database
+ * 
  * @returns an object (SWRResponse) with the following properties: data (number), error, isValidating, and mutate
  * 
  * @typeParam T - Type of the data returned by the method
  */
-export const useFrappeGetCallOffline = <T,>(method: string, params?: Record<string, any>, lastModified?: string | Date, databaseName?: string, version?: number) => {
+export const useFrappeGetCallOffline = <T,>(method: string, params?: Record<string, any>, lastModified?: string | Date) => {
     /** 1. Check if data is in indexedDB
      * - If lastFetchData is null - we are loading data from indexedDB
      * - If lastFetchData is undefined - we do not have any data in indexedDB
@@ -1051,7 +1062,6 @@ export const useFrappeGetCallOffline = <T,>(method: string, params?: Record<stri
 
     //Intialize database
     const { indexdb } = useContext(FrappeContext) as FrappeConfig
-    // const db = DexieDatabase(databaseName, version);
 
     const lastFetchedData: lastFetchType | null = useGetLastFetched(indexdb, method, encodeQueryData(params ?? {}));
 
