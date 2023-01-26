@@ -664,13 +664,38 @@ file.uploadFile(
 
 <br/>
 
+## Event Listener Hook
+
+### useFrappeEventListener
+
+`useFrappeEventListener` is a hook that can be used to listen to events from Frappe using socket.io, The hook takes in the following parameters:
+
+`url` and `socket_port` are optional paramters and cab be passed to `FrappeProvider` instead.
+
+Parameters:
+
+| No. | Variable    | type     | Required | Description       |
+| --- | ----------- | -------- | -------- | ----------------- |
+| 1.  | `eventName` | `string` | ✅       | Name of the event |
+| 2.  | `callback`  | `void`   | ✅       | Callback function |
+
+```tsx
+export const MyEventListener = () => {
+  useFrappeEventListener('myEvent', (data) => {
+    // do something with the data
+    if (data.status === 'success') {
+      console.log('success');
+    }
+  });
+  return null;
+};
+```
+
 ## [Frappe-React-IndexDB](https://github.com/sumitjain236/frappe-react-indexdb)
 
 This package is a wrapper around Frappe-React and IndexedDB to provide a simple way to cache data from Frappe in the browser. The default database name is `frappe-react-indexdb` and the default version is `1`. The package also provides a way to sync data from Frappe to IndexDB.
 
-### Fetch Documents and store in IndexedDB
-
-The `useFrappeGetDocOffline` hook can be used to fetch documents from Frappe, store them in IndexedDB and sync the data.The hook uses `useFrappeGetDoc` under the hook and it's configuration can be passed to it.
+Database Name and Version are optional parameters, we can add that in `FrappeProvider` .
 
 ```tsx
 import {
@@ -680,24 +705,21 @@ import {
 } from 'frappe-react-sdk';
 ```
 
+### Fetch Documents and store in IndexedDB
+
+The `useFrappeGetDocOffline` hook can be used to fetch documents from Frappe, store them in IndexedDB and sync the data.The hook uses `useFrappeGetDoc` under the hook and it's configuration can be passed to it.
+
 Parameters:
 
-| No. | Variable       | type     | Required | Description          |
-| --- | -------------- | -------- | -------- | -------------------- |
-| 1.  | `doctype`      | `string` | ✅       | Name of the doctype  |
-| 2.  | `name`         | `string` | ✅       | Name of the document |
-| 3.  | `databaseName` | `string` | -        | Name of database     |
-| 4.  | `version`      | `number` | -        | Version of database  |
+| No. | Variable  | type     | Required | Description          |
+| --- | --------- | -------- | -------- | -------------------- |
+| 1.  | `doctype` | `string` | ✅       | Name of the doctype  |
+| 2.  | `name`    | `string` | ✅       | Name of the document |
 
 ```tsx
 export const MyDocumentDataOffline = () => {
   const { data, error, isLoading, isValidating, mutate } =
-    useFrappeGetDocOffline<T>(
-      'User',
-      'Administrator',
-      /*** Database Name [Optional]***/ 'my-database',
-      /*** Database Version [Optional]***/ 1
-    );
+    useFrappeGetDocOffline<T>('User', 'Administrator');
 
   if (isLoading) {
     return <>Loading</>;
@@ -720,7 +742,7 @@ export const MyDocumentDataOffline = () => {
 <details><summary>See Explanation (click to expand):</summary>
 <p>
 
-The `useFrappeGetDocOffline` hook is used for fetching, storing, and syncing a document in IndexedDB. It takes in four parameters: `doctype`, `name`, `databaseName`, and `version`. The `doctype` parameter is the doctype of the document to be fetched, the `name` parameter is the name of the document, `databaseName` is an optional parameter for the name of the database to use, and `version` is an optional parameter for the version of the database to be used.
+The `useFrappeGetDocOffline` hook is used for fetching, storing, and syncing a document in IndexedDB. It takes in four parameters: `doctype` and `name`. The `doctype` parameter is the doctype of the document to be fetched, the `name` parameter is the name of the document.
 
 The hook returns an object (`SWRResponse`) with the following properties: `data`, `error`, `isLoading`, `isValidating`, and `mutate`. The type of the document to fetch is passed as a type parameter `T`.
 
@@ -744,43 +766,33 @@ The `useFrappeDocGetListOffline` hook can be used to fetch list of documents fro
 
 Parameters:
 
-| No. | Variable       | type             | Required | Description                                                                                         |
-| --- | -------------- | ---------------- | -------- | --------------------------------------------------------------------------------------------------- |
-| 1.  | `doctype`      | `string`         | ✅       | Name of the doctype                                                                                 |
-| 2.  | `args`         | `GetDocListArgs` | -        | optional parameter (object) to sort, filter, paginate and select the fields that you want to fetch. |
-| 3.  | `databaseName` | `string`         | -        | Database Name                                                                                       |
-| 3.  | `version`      | `number`         | -        | Database Version                                                                                    |
+| No. | Variable  | type             | Required | Description                                                                                         |
+| --- | --------- | ---------------- | -------- | --------------------------------------------------------------------------------------------------- |
+| 1.  | `doctype` | `string`         | ✅       | Name of the doctype                                                                                 |
+| 2.  | `args`    | `GetDocListArgs` | -        | optional parameter (object) to sort, filter, paginate and select the fields that you want to fetch. |
 
 ```tsx
 export const MyDocumentListOffline = () => {
   const { data, error, isLoading, isValidating, mutate } =
-    useFrappeGetDocListOffline<T>(
-      'DocType',
-      {
-        /** Fields to be fetched - Optional */
-        fields: ['name', 'creation'],
-        /** Filters to be applied - SQL AND operation */
-        filters: [['creation', '>', '2021-10-09']],
-        /** Filters to be applied - SQL OR operation */
-        orFilters: [],
-        /** Fetch from nth document in filtered and sorted list. Used for pagination  */
-        limit_start: 5,
-        /** Number of documents to be fetched. Default is 20  */
-        limit: 10,
-        /** Sort results by field and order  */
-        orderBy: {
-          field: 'creation',
-          order: 'desc',
-        },
-        /** Fetch documents as a dictionary */
-        asDict: false,
+    useFrappeGetDocListOffline<T>('DocType', {
+      /** Fields to be fetched - Optional */
+      fields: ['name', 'creation'],
+      /** Filters to be applied - SQL AND operation */
+      filters: [['creation', '>', '2021-10-09']],
+      /** Filters to be applied - SQL OR operation */
+      orFilters: [],
+      /** Fetch from nth document in filtered and sorted list. Used for pagination  */
+      limit_start: 5,
+      /** Number of documents to be fetched. Default is 20  */
+      limit: 10,
+      /** Sort results by field and order  */
+      orderBy: {
+        field: 'creation',
+        order: 'desc',
       },
-      /** Database Name - Optional **/
-
-      {
-        /** Version - Optional **/
-      }
-    );
+      /** Fetch documents as a dictionary */
+      asDict: false,
+    });
 
   if (isLoading) {
     return <>Loading</>;
@@ -803,7 +815,7 @@ export const MyDocumentListOffline = () => {
 <details><summary>See Explanation (click to expand):</summary>
 <p>
 
-The `useFrappeGetDocListOffline` hook is used for fetching, storing, and syncing a list of documents in IndexedDB. It takes in four parameters: `doctype`, `args`, `databaseName`, and `version`. The `doctype` parameter is the name of the doctype to fetch, the `args` parameter is an object that contains the arguments to pass (filters, pagination, etc), `databaseName` is an optional parameter for the name of the database to use, and `version` is an optional parameter for the version of the database to be used.
+The `useFrappeGetDocListOffline` hook is used for fetching, storing, and syncing a list of documents in IndexedDB. It takes in four parameters: `doctype` and `args`. The `doctype` parameter is the name of the doctype to fetch, the `args` parameter is an object that contains the arguments to pass (filters, pagination, etc).
 
 The hook returns an object (`SWRResponse`) with the following properties: `data`, `error`, `isLoading`, `isValidating`, and `mutate`. The type definition of the document object to fetch is passed as a type parameter `T`.
 
@@ -834,8 +846,6 @@ Parameters:
 | 1.  | `method`       | `string`             | ✅       | Name of the method    |
 | 2.  | `param`        | `Record<string,any>` | ✅       | Name of the document  |
 | 3.  | `lastModified` | `string`&vert;`Date` | -        | Date of last modified |
-| 4.  | `databaseName` | `string`             | -        | Name of database      |
-| 5.  | `version`      | `number`             | -        | Version of database   |
 
 ```tsx
 export const MyDocumentCallOffline = () => {
@@ -848,9 +858,7 @@ export const MyDocumentCallOffline = () => {
         doctype: 'User',
         filters: [['creation', '>', '2021-10-09']],
       },
-      /*** Last Modified Date [Optional]***/ '2021-10-09',
-      /*** Database Name [Optional]***/ 'my-database',
-      /*** Database Version [Optional]***/ 1
+      /*** Last Modified Date [Optional]***/ '2021-10-09'
     );
 
   if (isLoading) {
@@ -874,7 +882,7 @@ export const MyDocumentCallOffline = () => {
 <details><summary>See Explanation (click to expand):</summary>
 <p>
 
-The `useFrappeGetCallOffline` hook is used for fetching, storing, and syncing data from IndexedDB for the "Get Call" method. It takes in five parameters: `method`, `params`, `lastModified`, `databaseName`, and `version`. The `method` parameter is the name of the method to call (will be dotted path e.g. "frappe.client.get_list"), the `params` parameter is an optional object that contains the parameters to pass to the `method`, `lastModified` is an optional parameter for the last modified date of the data, `databaseName` is an optional parameter for the name of the database to use, and `version` is an optional parameter for the version of the database to be used.
+The `useFrappeGetCallOffline` hook is used for fetching, storing, and syncing data from IndexedDB for the "Get Call" method. It takes in five parameters: `method`, `params` and `lastModified`. The `method` parameter is the name of the method to call (will be dotted path e.g. "frappe.client.get_list"), the `params` parameter is an optional object that contains the parameters to pass to the `method`, `lastModified` is an optional parameter for the last modified date of the data.
 
 The hook returns an object (`SWRResponse`) with the following properties: `data`, `error`, `isLoading` `isValidating`, and `mutate`. The type of the data returned by the method is passed as a type parameter `T`.
 
