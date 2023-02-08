@@ -811,7 +811,7 @@ const useDebounce = (value: any, delay: number) => {
  * @param doctype - the doctype to fetch
  * @param name - name of the document to fetch
  * 
- * @returns object (SWRResponse) with the following properties: data, error, isValidating, and mutate
+ * @returns object (SWRResponse) with the following properties: data, error, isValidating, mutate and custom function delete
  * 
  * @typeParam T - The type of the document to fetch
  */
@@ -829,8 +829,21 @@ export const useFrappeGetDocOffline = <T,>(doctype: string, name?: string) => {
 
     const lastFetchExist: boolean = lastFetched !== undefined && lastFetched !== null;
 
+    /** 2. Check if user has permission to read the document
+   *  - If user has permission - proceed to check for latest timestamp
+   *  - If user does not have permission - delete the document from indexedDB
+   */
+
+    const { data: permission, error: permissionError } = useFrappeGetCall<{ message: { has_permission: boolean } }>('frappe.client.has_permission', {
+        doctype,
+        docname: name,
+        ptype: 'read'
+    })
+
+    const hasPermission: boolean | undefined = permission?.message.has_permission;
+
     /**
-     * 2. Fetch timestamp from frappe for document
+     * 3. Fetch timestamp from frappe for document
      * - If lastFetched is null or undefined - then we do not fetch timestamp from frappe
      * - However, if lastFetched has data - we fetch timestamp from frappe for comparison
      */
@@ -841,35 +854,41 @@ export const useFrappeGetDocOffline = <T,>(doctype: string, name?: string) => {
             filters: { name },
             fieldname: 'modified',
         },
-        lastFetchExist ? undefined : null
+        lastFetchExist && hasPermission ? undefined : null
     );
 
     const [shouldLoad, setShouldLoad] = useState<boolean>(false);
 
     useEffect(() => {
-        if (lastFetched === undefined) {
-            setShouldLoad(true);
-            /** TODO: If data is fetched from indexedDB, compare with timestamp */
-        } else if (
-            lastFetchExist &&
-            modified &&
-            modified.message.modified &&
-            modified.message.modified !== lastFetched?.modified
-        ) {
-            setShouldLoad(true);
-        } else if (
-            lastFetchExist &&
-            modified &&
-            modified.message.modified === undefined
-        ) {
-            setShouldLoad(true);
+        if (!hasPermission) {
+            if (lastFetchExist) {
+                indexdb.table("docs").delete(`${doctype}_${name}`);
+            }
         }
-    }, [lastFetched, modified]);
+        else {
+            if (lastFetched === undefined) {
+                setShouldLoad(true);
+            } else if (
+                lastFetchExist &&
+                modified &&
+                modified.message.modified &&
+                modified.message.modified !== lastFetched?.modified
+            ) {
+                setShouldLoad(true);
+            } else if (
+                lastFetchExist &&
+                modified &&
+                modified.message.modified === undefined
+            ) {
+                setShouldLoad(true);
+            }
+        }
+    }, [lastFetched, modified, hasPermission, lastFetchExist]);
 
     const { data, error, mutate, isLoading, isValidating } = useFrappeGetDoc<T>(
         doctype,
         name,
-        shouldLoad ? undefined : null
+        shouldLoad && hasPermission ? undefined : null
     );
 
     /** Store in indexedDB if data is fetched from server */
@@ -897,11 +916,19 @@ export const useFrappeGetDocOffline = <T,>(doctype: string, name?: string) => {
         }
     };
 
+    const forceDelete = () => {
+        setShouldLoad(false);
+        if (lastFetchExist) {
+            indexdb.table("docs").delete(`${doctype}_${name}`);
+        }
+    }
+
     return {
         isLoadedFromServer: shouldLoad,
-        data: shouldLoad ? data : lastFetched?.data,
-        error,
+        data: shouldLoad ? data : lastFetched ? lastFetched.data : undefined,
+        error: hasPermission ? error : new CustomError(403, "FORBIDDEN", "there was an error", `frappe.exceptions.PermissionError: No permission for ${doctype}`),
         mutate: forceRefresh,
+        delete: forceDelete,
         isLoading: shouldLoad ? isLoading : lastFetched === undefined,
         isValidating: shouldLoad ? isValidating : false,
     };
@@ -913,7 +940,7 @@ export const useFrappeGetDocOffline = <T,>(doctype: string, name?: string) => {
  * @param doctype Name of the doctype to fetch
  * @param args Arguments to pass (filters, pagination, etc)
  *
- * @returns an object (SWRResponse) with the following properties: data, error, isValidating, and mutate
+ * @returns an object (SWRResponse) with the following properties: data, error, isValidating, mutate and custom function delete
  *
  * @typeParam T - The type definition of the document object to fetch
  */
@@ -932,17 +959,29 @@ export const useFrappeGetDocListOffline = <T,>(doctype: string, args?: GetDocLis
     const lastFetchExist =
         lastFetchedList !== undefined && lastFetchedList !== null;
 
-    /** 2. Fetch count from frappe for document
-     */
+    /** 2. Check if user has permission to read the document list
+    * - If user has permission - proceed to check for latest count
+    * - If user does not have permission - delete the document list from indexedDB
+    */
 
-    const { data: listCount } = useFrappeGetDocCount(doctype, args?.filters);
+    const { data: permission, error: permissionError } = useFrappeGetCall<{ message: { has_permission: boolean } }>('frappe.client.has_permission', {
+        doctype,
+        docname: "",
+        ptype: 'read'
+    });
+
+    const hasPermission: boolean | undefined = permission?.message.has_permission
+
+    /** 3. Fetch count from frappe for document */
+
+    const { data: listCount } = useFrappeGetDocCount(doctype, args?.filters, undefined, undefined, hasPermission ? undefined : null);
 
     const countNotChanged: boolean =
         lastFetchExist &&
         listCount !== undefined &&
         listCount === lastFetchedList.count;
 
-    /** 3. Fetch timestamp from frappe for document if lastFetchedList is not null or undefined and count is
+    /** 4. Fetch timestamp from frappe for document if lastFetchedList is not null or undefined and count is
      *     not equal to lastFetchedList.count
      */
 
@@ -960,11 +999,7 @@ export const useFrappeGetDocListOffline = <T,>(doctype: string, args?: GetDocLis
         countNotChanged ? undefined : null
     );
 
-    const modifiedChanged: boolean = modified !== undefined && modified[0] !== undefined && modified[0].modified !== undefined;
-
-    console.log('modifiedChanged', modifiedChanged);
-
-    /** 4. Set shouldLoad state to true
+    /** 5. Set shouldLoad state to true
      * - If lastFetchedList is undefined - we do not have any data in indexedDB
      * - If lastFetchedList is not undefined and count is not equal to lastFetchedList.count - we have data in indexedDB
      * - If lastFetchedList is not undefined and modified is not equal to lastFetchedList.modified - we have data in indexedDB
@@ -973,38 +1008,41 @@ export const useFrappeGetDocListOffline = <T,>(doctype: string, args?: GetDocLis
     const [shouldLoad, setShouldLoad] = useState(false);
 
     useEffect(() => {
-        if (lastFetchedList === undefined) {
-            console.log('Data not in indexedDB');
-            setShouldLoad(true);
-        } else if (lastFetchExist && lastFetchedList) {
-            console.log('Data in indexedDB', lastFetchedList);
-            if (
-                (listCount || listCount === 0) &&
-                listCount !== lastFetchedList.count
-            ) {
-                console.log('Count changed');
-                setShouldLoad(true);
-            } else if (
-                modified &&
-                modified[0] &&
-                convertDateToMiliseconds(modified[0].modified) >
-                Math.floor(lastFetchedList.lastFetchedOn.getTime())
-            ) {
-                console.log('Modified changed');
-                setShouldLoad(true);
+        if (!hasPermission) {
+            if (lastFetchExist) {
+                indexdb.table("docs").delete(`${doctype}_${getDocListQueryString(args)}`);
             }
         }
-    }, [lastFetchedList, listCount, modified]);
+        else {
+            if (lastFetchedList === undefined) {
+                setShouldLoad(true);
+            } else if (lastFetchExist && lastFetchedList) {
+                if (
+                    (listCount || listCount === 0) &&
+                    listCount !== lastFetchedList.count
+                ) {
+                    setShouldLoad(true);
+                } else if (
+                    modified &&
+                    modified[0] &&
+                    convertDateToMiliseconds(modified[0].modified) >
+                    Math.floor(lastFetchedList.lastFetchedOn.getTime())
+                ) {
+                    setShouldLoad(true);
+                }
+            }
+        }
+    }, [lastFetchExist, lastFetchedList, listCount, modified, hasPermission]);
 
-    /** 5. Fetch data from frappe if shouldLoad is true
+    /** 6. Fetch data from frappe if shouldLoad is true
      */
     const { data, error, mutate, isLoading, isValidating } = useFrappeGetDocList<T>(
         doctype,
         args,
-        shouldLoad ? undefined : null
+        shouldLoad && hasPermission ? undefined : null
     );
 
-    /** 6. Store in indexedDB if data is fetched from server */
+    /** 7. Store in indexedDB if data is fetched from server */
 
     useEffect(() => {
         if (data) {
@@ -1031,11 +1069,19 @@ export const useFrappeGetDocListOffline = <T,>(doctype: string, args?: GetDocLis
         }
     };
 
+    const forceDelete = () => {
+        setShouldLoad(false);
+        if (lastFetchExist) {
+            indexdb.table("docs").delete(`${doctype}_${getDocListQueryString(args)}`);
+        }
+    }
+
     return {
         isLoadedFromServer: shouldLoad,
         data: shouldLoad ? data : lastFetchedList?.data,
-        error,
+        error: hasPermission ? error : new CustomError(403, "FORBIDDEN", "there was an error", `frappe.exceptions.PermissionError: No permission for ${doctype}`),
         mutate: forceRefresh,
+        delete: forceDelete,
         isLoading: shouldLoad ? isLoading : lastFetchedList === undefined,
         isValidating: shouldLoad ? isValidating : false,
     };
@@ -1048,7 +1094,7 @@ export const useFrappeGetDocListOffline = <T,>(doctype: string, args?: GetDocLis
  * @param params [Optional] parameters to pass to the method
  * @param lastModified [Optional] last modified date of the data
  * 
- * @returns an object (SWRResponse) with the following properties: data (number), error, isValidating, and mutate
+ * @returns an object (SWRResponse) with the following properties: data (number), error, isValidating, mutate and custom function delete
  * 
  * @typeParam T - Type of the data returned by the method
  */
@@ -1125,6 +1171,13 @@ export const useFrappeGetCallOffline = <T,>(method: string, params?: Record<stri
         }
     };
 
+    const forceDelete = () => {
+        setShouldLoad(false);
+        if (lastFetchExist) {
+            indexdb.table("docs").delete(`${method}_${encodeQueryData(params ?? {})}`);
+        }
+    }
+
     // Return Data
 
     return {
@@ -1132,6 +1185,7 @@ export const useFrappeGetCallOffline = <T,>(method: string, params?: Record<stri
         data: shouldLoad ? data : lastFetchedData?.data,
         error,
         mutate: forceRefresh,
+        delete: forceDelete,
         isLoading: shouldLoad ? isLoading : lastFetchedData === undefined,
         isValidating: shouldLoad ? isValidating : false,
     };
@@ -1196,3 +1250,17 @@ export const formatedTimestamp = (d: Date) => {
     const time = d.toTimeString().split(' ')[0];
     return `${date} ${time}`;
 };
+
+
+export class CustomError {
+    httpStatus: number;
+    httpStatusText: string;
+    message: string;
+    exception: string;
+    constructor(httpStatus: number, httpStatusText: string, message: string, exception: string) {
+        this.httpStatus = httpStatus;
+        this.httpStatusText = httpStatusText;
+        this.message = message;
+        this.exception = exception;
+    }
+}
