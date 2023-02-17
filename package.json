@@ -1,7 +1,7 @@
 {
   "name": "frappe-react-sdk",
   "description": "React hooks for Frappe Framework",
-  "version": "1.0.23",
+  "version": "1.0.25",
   "license": "MIT",
   "author": {
     "name": "Nikhil Kothari",
@@ -76,7 +76,7 @@
   },
   "dependencies": {
     "@types/socket.io-client": "^3.0.0",
-    "frappe-js-sdk": "^1.1.15",
+    "frappe-js-sdk": "^1.1.17",
     "react": ">=17.x",
     "socket.io-client": "^4.5.4",
     "swr": "^2.0.0"

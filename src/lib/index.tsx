@@ -161,6 +161,10 @@ export const getDocListQueryString = (args?: GetDocListArgs): string => {
         queryString += "limit=" + JSON.stringify(args?.limit) + '&'
     }
 
+    if (args?.groupBy) {
+        queryString += "group_by=" + args.groupBy + '&'
+    }
+
     /** Sort results by field and order  */
     if (args?.orderBy) {
         const orderByString = `${args.orderBy?.field} ${args.orderBy?.order ?? 'asc'}`;
