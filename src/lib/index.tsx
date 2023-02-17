@@ -930,13 +930,14 @@ export const useFrappeGetDocListOffline = <T,>(doctype: string, args?: GetDocLis
     let params = {};
 
     if (args) {
-        const { fields, filters, orFilters, orderBy, limit, limit_start, asDict = true } = args;
+        const { fields, filters, orFilters, orderBy, groupBy, limit, limit_start, asDict = true } = args;
         const orderByString = orderBy ? `${orderBy?.field} ${orderBy?.order ?? 'asc'}` : '';
         params = {
             fields: fields ? JSON.stringify(fields) : undefined,
             filters: filters ? JSON.stringify(filters) : undefined,
             or_filters: orFilters ? JSON.stringify(orFilters) : undefined,
             order_by: orderByString,
+            group_by: groupBy,
             limit,
             limit_start,
             as_dict: asDict,
