@@ -70,7 +70,18 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
 
     const { url, auth } = useContext(FrappeContext) as FrappeConfig
 
-    const { data: currentUser, error, isValidating, mutate: updateCurrentUser } = useSWR<string | null, Error>(`${url}/api/method/frappe.auth.get_logged_user`, () => auth.getLoggedInUser(), options)
+    const [userID, setUserID] = useState<string | null>(null)
+
+    useEffect(() => {
+        const userCookie = document.cookie.split(';').find(c => c.trim().startsWith('user_id='))
+        if (userCookie && userCookie !== "user_id=Guest") {
+            setUserID(userCookie.split('=')[1])
+        } else {
+            setUserID(null)
+        }
+    }, [])
+
+    const { data: currentUser, error, isValidating, mutate: updateCurrentUser } = useSWR<string | null, Error>(userID ? `${url}/api/method/frappe.auth.get_logged_user` : null, () => auth.getLoggedInUser(), options)
 
     const login = useCallback(async (username: string, password: string) => {
         return auth.loginWithUsernamePassword({ username, password }).then((m) => {
@@ -80,7 +91,9 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
     }, [])
 
     const logout = useCallback(async () => {
-        return auth.logout().then(() => updateCurrentUser(null))
+        return auth.logout()
+            .then(() => updateCurrentUser(null))
+            .then(() => setUserID(null))
     }, [])
 
     return {
