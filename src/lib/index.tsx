@@ -72,21 +72,29 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
 
     const [userID, setUserID] = useState<string | null>(null)
 
-    useEffect(() => {
+    const getUserCookie = useCallback(() => {
         const userCookie = document.cookie.split(';').find(c => c.trim().startsWith('user_id='))
-        if (userCookie && userCookie !== "user_id=Guest") {
-            setUserID(userCookie.split('=')[1])
+        if (userCookie) {
+            const userName = userCookie.split('=')[1]
+            if (userName && userName !== "Guest") {
+                setUserID(userName)
+            } else {
+                setUserID(null)
+            }
         } else {
             setUserID(null)
         }
+    }, [])
+
+    useEffect(() => {
+        getUserCookie()
     }, [])
 
     const { data: currentUser, error, isValidating, mutate: updateCurrentUser } = useSWR<string | null, Error>(userID ? `${url}/api/method/frappe.auth.get_logged_user` : null, () => auth.getLoggedInUser(), options)
 
     const login = useCallback(async (username: string, password: string) => {
         return auth.loginWithUsernamePassword({ username, password }).then((m) => {
-            console.log(m)
-            updateCurrentUser()
+            getUserCookie()
         })
     }, [])
 
