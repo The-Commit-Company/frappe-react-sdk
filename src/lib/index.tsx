@@ -56,6 +56,8 @@ export const FrappeProvider = ({ url = "", children }: FrappeProviderProps) => {
 export const useFrappeAuth = (options?: SWRConfiguration): {
     /** The current logged in user. Will be null/undefined if user is not logged in */
     currentUser: string | null | undefined,
+    /** Will be true when the hook is fetching user data  */
+    isLoading: boolean,
     /** Will be true when the hook is fetching (or revalidating) the user state. (Refer to isValidating in useSWR)  */
     isValidating: boolean,
     /** Error object returned from API call */
@@ -65,12 +67,14 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
     /** Function to log the user out */
     logout: () => Promise<any>,
     /** Function to fetch updated user state */
-    updateCurrentUser: () => void
+    updateCurrentUser: () => void,
+    /** Function to get the user cookie and */
+    getUserCookie: () => void
 } => {
 
     const { url, auth } = useContext(FrappeContext) as FrappeConfig
 
-    const [userID, setUserID] = useState<string | null>(null)
+    const [userID, setUserID] = useState<string | null | undefined>()
 
     const getUserCookie = useCallback(() => {
         const userCookie = document.cookie.split(';').find(c => c.trim().startsWith('user_id='))
@@ -90,7 +94,14 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
         getUserCookie()
     }, [])
 
-    const { data: currentUser, error, isValidating, mutate: updateCurrentUser } = useSWR<string | null, Error>(userID ? `${url}/api/method/frappe.auth.get_logged_user` : null, () => auth.getLoggedInUser(), options)
+    const { data: currentUser, error, isLoading, isValidating, mutate: updateCurrentUser } = useSWR<string | null, Error>(userID ? `${url}/api/method/frappe.auth.get_logged_user` : null, () => auth.getLoggedInUser(), {
+        onError: () => {
+            setUserID(null)
+        },
+        shouldRetryOnError: false,
+        revalidateOnFocus: false,
+        ...options,
+    })
 
     const login = useCallback(async (username: string, password: string) => {
         return auth.loginWithUsernamePassword({ username, password }).then((m) => {
@@ -105,12 +116,14 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
     }, [])
 
     return {
+        isLoading: userID === undefined || isLoading,
         currentUser,
         isValidating,
         error,
         login,
         logout,
-        updateCurrentUser
+        updateCurrentUser,
+        getUserCookie
     }
 }
 
