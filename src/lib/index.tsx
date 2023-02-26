@@ -41,7 +41,7 @@ export const FrappeProvider = ({ url = "", tokenParams, children }: FrappeProvid
 
     const frappeConfig: FrappeConfig = useMemo(() => {
         //Add your Frappe backend's URL
-        const frappe = new FrappeApp(url, tokenParams!)
+        const frappe = new FrappeApp(url, tokenParams)
 
         return {
             url,
@@ -152,9 +152,9 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
  */
 export const useFrappeGetDoc = <T,>(doctype: string, name?: string, swrKey?: Key, options?: SWRConfiguration): SWRResponse<FrappeDoc<T>, Error> => {
 
-    const { db } = useContext(FrappeContext) as FrappeConfig
+    const { url, db } = useContext(FrappeContext) as FrappeConfig
 
-    const swrResult = useSWR<FrappeDoc<T>, Error>(swrKey === undefined ? db.getRequestURL(doctype, name) : swrKey, () => db.getDoc<T>(doctype, name), options)
+    const swrResult = useSWR<FrappeDoc<T>, Error>(swrKey === undefined ? `${url}/api/resource/${doctype}/${name}` : swrKey, () => db.getDoc<T>(doctype, name), options)
 
     return {
         ...swrResult
@@ -225,9 +225,9 @@ export const getDocListQueryString = (args?: GetDocListArgs): string => {
  */
 export const useFrappeGetDocList = <T,>(doctype: string, args?: GetDocListArgs, swrKey?: Key, options?: SWRConfiguration): SWRResponse<T[], Error> => {
 
-    const { db } = useContext(FrappeContext) as FrappeConfig
+    const { url, db } = useContext(FrappeContext) as FrappeConfig
 
-    const swrResult = useSWR<T[], Error>(swrKey === undefined ? `${db.getRequestURL(doctype)}?${getDocListQueryString(args)}` : swrKey, () => db.getDocList<T>(doctype, args), options)
+    const swrResult = useSWR<T[], Error>(swrKey === undefined ? `${url}/api/resource/${doctype}?${getDocListQueryString(args)}` : swrKey, () => db.getDocList<T>(doctype, args), options)
 
     return {
         ...swrResult
