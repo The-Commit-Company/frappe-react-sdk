@@ -16,24 +16,36 @@ export type { FrappeDoc, GetDocListArgs, Filter, FileArgs, Error as FrappeError 
 export interface FrappeConfig {
     /** The URL of your Frappe server */
     url: string;
+    tokenParams?: TokenParams;
     app: FrappeApp,
     auth: FrappeAuth,
     db: FrappeDB,
     call: FrappeCall,
     file: FrappeFileUpload
 }
+
+export interface TokenParams {
+    /** Whether to use token for API calls */
+    useToken: boolean;
+    /** Function that returns the token as a string - this could be fetched from LocalStorage or auth providers like Firebase, Auth0 etc. */
+    token?: () => string;
+    /** Type of token to be used for authentication */
+    type: 'Bearer' | 'token'
+}
+
 export const FrappeContext = createContext<null | FrappeConfig>(null)
 
-type FrappeProviderProps = PropsWithChildren<{ url?: string }>
+type FrappeProviderProps = PropsWithChildren<{ url?: string, tokenParams?: TokenParams }>
 
-export const FrappeProvider = ({ url = "", children }: FrappeProviderProps) => {
+export const FrappeProvider = ({ url = "", tokenParams, children }: FrappeProviderProps) => {
 
     const frappeConfig: FrappeConfig = useMemo(() => {
         //Add your Frappe backend's URL
-        const frappe = new FrappeApp(url)
+        const frappe = new FrappeApp(url, tokenParams!)
 
         return {
             url,
+            tokenParams,
             app: frappe,
             auth: frappe.auth(),
             db: frappe.db(),
@@ -41,7 +53,7 @@ export const FrappeProvider = ({ url = "", children }: FrappeProviderProps) => {
             file: frappe.file()
         }
 
-    }, [url])
+    }, [url, tokenParams])
 
     return <FrappeContext.Provider value={frappeConfig}>{children}</FrappeContext.Provider>
 }

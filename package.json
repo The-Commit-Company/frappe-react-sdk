@@ -75,7 +75,7 @@
     "vitest": "^0.23.1"
   },
   "dependencies": {
-    "frappe-js-sdk": "^1.1.17",
+    "frappe-js-sdk": "^1.2.1",
     "react": ">=17.x",
     "swr": "^2.0.0"
   },
