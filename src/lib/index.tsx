@@ -84,7 +84,7 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
     getUserCookie: () => void
 } => {
 
-    const { url, auth } = useContext(FrappeContext) as FrappeConfig
+    const { url, auth, tokenParams } = useContext(FrappeContext) as FrappeConfig
 
     const [userID, setUserID] = useState<string | null | undefined>()
 
@@ -103,10 +103,23 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
     }, [])
 
     useEffect(() => {
-        getUserCookie()
+        //Only get user cookie if token is not used
+        if (tokenParams && tokenParams.useToken) {
+            setUserID(null)
+        } else {
+            getUserCookie()
+        }
+
     }, [])
 
-    const { data: currentUser, error, isLoading, isValidating, mutate: updateCurrentUser } = useSWR<string | null, Error>(userID ? `${url}/api/method/frappe.auth.get_logged_user` : null, () => auth.getLoggedInUser(), {
+    const { data: currentUser, error, isLoading, isValidating, mutate: updateCurrentUser } = useSWR<string | null, Error>(
+        () => {
+            if ((tokenParams && tokenParams.useToken) || userID) {
+                return `${url}/api/method/frappe.auth.get_logged_user`
+            } else {
+                return null
+            }
+        }, () => auth.getLoggedInUser(), {
         onError: () => {
             setUserID(null)
         },
