@@ -1,0 +1,7 @@
+{
+    "get_list": "Get a list of documents",
+    "read": "Read a document",
+    "create": "Create a document",
+    "update": "Update a document",
+    "delete": "Delete a document"
+}

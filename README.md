@@ -24,7 +24,7 @@ We plan to add the following features in the future:
 
 - Support for other common functions like `exists` in the database.
 
-The library uses [frappe-js-sdk](https://github.com/nikkothari22/frappe-js-sdk) and [SWR](https://swr.vercel.app) under the hood to make API calls to your Frappe backend.
+The library uses [frappe-js-sdk](https://github.com/The-Commit-Company/frappe-js-sdk) and [SWR](https://swr.vercel.app) under the hood to make API calls to your Frappe backend.
 
 <br/>
 

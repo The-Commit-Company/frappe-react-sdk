@@ -1,0 +1,37 @@
+# Read a document
+
+The `useFrappeGetDoc` hook can be used to fetch a document from the database. The hook uses `useSWR` under the hood and it's configuration can be passed to it.
+
+Parameters:
+
+| No. | Variable  | type               | Required | Description               |
+| --- | --------- | ------------------ | -------- | ------------------------- |
+| 1.  | `doctype` | `string`           | ✅       | Name of the doctype       |
+| 2.  | `docname` | `string`           | ✅       | Name of the document      |
+| 3.  | `swrKey`  | `Key`              | -        | SWR Key                   |
+| 4.  | `options` | `SWRConfiguration` | -        | SWR Configuration Options |
+
+```tsx copy
+export const MyDocumentData = () => {
+  const { data, error, isValidating, isLoading, mutate } = useFrappeGetDoc<T>(
+    'User',
+    'Administrator',
+  );
+
+  if (isLoading) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (data) {
+    return (
+      <p>
+        {JSON.stringify(data)}
+        <button disabled={isValidating} onClick={() => mutate()}>Reload</button>
+      </p>
+    );
+  }
+  return null;
+};
+```

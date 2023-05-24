@@ -1,0 +1,33 @@
+# DELETE
+
+```tsx copy
+export const MyDocumentDeleteCall = () => {
+  const { call, result, loading, isCompleted, reset } = useFrapeDeleteDocCall(
+    /** method **/
+    'frappe.client.delete'
+  );
+
+  const deleteDoc = () => {
+    call({
+      //** params **/
+      doctype: 'User',
+      name: 'Administrator',
+    });
+  };
+
+  const resetCall = () => {
+    reset();
+  };
+
+  if (loading) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (result) {
+    return <p>{result}</p>;
+  }
+  return null;
+};
+```

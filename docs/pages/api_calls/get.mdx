@@ -1,0 +1,33 @@
+# GET
+
+Make a GET request to your endpoint with parameters.
+
+```tsx copy
+export const MyDocumentGetCall = () => {
+  const { data, error, isLoading, isValidating, mutate } = useFrappeGetDocCall(
+    /** method **/
+    'frappe.client.get_value',
+    /** params **/
+    {
+      doctype: 'User',
+      fieldname: 'interest',
+      filters: {
+        name: 'Administrator',
+      },
+    }
+    /** SWR Key - Optional **/
+    /** SWR Configuration Options - Optional **/
+  );
+
+  if (isLoading) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (data) {
+    return <p>{data.message}</p>;
+  }
+  return null;
+};
+```

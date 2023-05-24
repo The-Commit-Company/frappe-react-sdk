@@ -1,0 +1,37 @@
+# PUT
+
+Make a PUT request to your endpoint with parameters.
+
+```tsx copy
+export const MyDocumentPutCall = () => {
+  const { call, result, loading, isCompleted, reset } = useFrapePutDocCall(
+    /** method **/
+    'frappe.client.set_value'
+  );
+
+  const generateRandomNumber = () => {
+    call({
+      //** params **/
+      doctype: 'User',
+      name: 'Administrator',
+      fieldname: 'interest',
+      value: Math.random(),
+    });
+  };
+
+  const resetCall = () => {
+    reset();
+  };
+
+  if (loading) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (result) {
+    return <p>{result}</p>;
+  }
+  return null;
+};
+```

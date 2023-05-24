@@ -1,0 +1,37 @@
+# Authentication
+
+The `useFrappeAuth` hook allows you to maintain the state of the current user, as well as login and logout the current user.
+
+The hook uses `useSWR` under the hood to make the `get_current_user` API call - you can also pass in parameters to configure the behaviour of the useSWR hook.
+
+```jsx copy
+export const MyAuthComponent = () => {
+  const {
+    currentUser,
+    isValidating,
+    isLoading,
+    login,
+    logout,
+    error,
+    updateCurrentUser,
+    getUserCookie,
+  } = useFrappeAuth();
+
+  if (isLoading) return <div>loading...</div>;
+
+  // render user
+  return (
+    <div>
+      {currentUser}
+      <button onClick={() => login('administrator', 'admin')}>Login</button>
+      <button onClick={logout}>Logout</button>
+      <button onClick={updateCurrentUser}>Fetch current user</button>
+    </div>
+  );
+};
+```
+
+The hook will not make an API call if no cookie is found. If there is a cookie, it will call the `frappe.auth.get_logged_user` method.
+The hook will throw an error if the API call to `frappe.auth.get_logged_user` fails (network issue etc) or if the user is logged out (403 Forbidden). Handle errors accordingly and route the user to your login page if the error is because the user is not logged in.
+
+The `getUserCookie` method can be used to reset the auth state if you encounter an authorization error in any other API call. This will then reset the `currentUser` to null.

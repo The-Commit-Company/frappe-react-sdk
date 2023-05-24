@@ -1,0 +1,28 @@
+# Other Events
+
+### useFrappeEventListener
+
+`useFrappeEventListener` is a hook that can be used to listen to events from Frappe using socket.io
+
+The hook takes in the following parameters:
+
+`url` and `socket_port` are optional paramters and can be passed to `FrappeProvider` instead.
+
+Parameters:
+
+| No. | Variable    | type     | Required | Description       |
+| --- | ----------- | -------- | -------- | ----------------- |
+| 1.  | `eventName` | `string` | ✅       | Name of the event |
+| 2.  | `callback`  | `void`   | ✅       | Callback function |
+
+```tsx copy
+export const MyEventListener = () => {
+  useFrappeEventListener('myEvent', (data) => {
+    // do something with the data
+    if (data.status === 'success') {
+      console.log('success');
+    }
+  });
+  return null;
+};
+```

@@ -1,0 +1,214 @@
+# Get a list of documents
+
+## useFrappeGetDocList
+
+The `useFrappeGetDocList` hook can be used to fetch a list of documents from the database.
+
+Parameters:
+
+| No. | Variable  | type               | Required | Description                                                                                         |
+| --- | --------- | ------------------ | -------- | --------------------------------------------------------------------------------------------------- |
+| 1.  | `doctype` | `string`           | ✅       | Name of the doctype                                                                                 |
+| 2.  | `args`    | `GetDocListArgs`   | -        | optional parameter (object) to sort, filter, paginate and select the fields that you want to fetch. |
+| 3.  | `swrKey`  | `Key`              | -        | SWR Key                                                                                             |
+| 3.  | `options` | `SWRConfiguration` | -        | SWR Configuration Options                                                                           |
+
+```tsx copy
+export const MyDocumentList = () => {
+  const { data, error, isValidating, mutate } = useFrappeGetDocList<T>(
+    'DocType',
+    {
+      /** Fields to be fetched - Optional */
+      fields: ['name', 'creation'],
+      /** Filters to be applied - SQL AND operation */
+      filters: [['creation', '>', '2021-10-09']],
+      /** Filters to be applied - SQL OR operation */
+      orFilters: [],
+      /** Fetch from nth document in filtered and sorted list. Used for pagination  */
+      limit_start: 5,
+      /** Number of documents to be fetched. Default is 20  */
+      limit: 10,
+      /** Sort results by field and order  */
+      orderBy: {
+        field: 'creation',
+        order: 'desc',
+      },
+      /** Fetch documents as a dictionary */
+      asDict: false,
+    }
+  );
+
+  if (isValidating) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (data) {
+    return (
+      <p>
+        {JSON.stringify(data)}
+        <button onClick={() => mutate()}>Reload</button>
+      </p>
+    );
+  }
+  return null;
+};
+```
+
+Type declarations are available for the second argument and will be shown to you in your code editor.
+### Examples
+#### Fetch 20 items without optional parameters
+
+In this case, only the `name` attribute will be fetched.
+
+```tsx copy
+export const MyDocumentList = () => {
+  const { data, error, isValidating } = useFrappeGetDocList<string>('User');
+
+  if (isValidating) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (data) {
+    return (
+      <ul>
+        {data.map((username) => (
+          <li>{username}</li>
+        ))}
+      </ul>
+    );
+  }
+  return null;
+};
+```
+
+#### Fetch usernames and emails with pagination
+
+```tsx copy
+type UserItem = {
+    name: string,
+    email: string
+}
+export const MyDocumentList = () => {
+    const [pageIndex, setPageIndex] = useState(0)
+    const { data, error, isValidating, isLoading } = useFrappeGetDocList<UserItem>("User" , {
+        fields: ["name", "email"],
+        limit_start: pageIndex,
+        /** Number of documents to be fetched. Default is 20  */
+        limit: 10,
+        /** Sort results by field and order  */
+        orderBy: {
+            field: "creation",
+            order: 'desc'
+        }
+    });
+
+    if (isLoading) {
+        return <>Loading</>
+    }
+    if (error) {
+        return <>{JSON.stringify(error)}</>
+    }
+    if (data) {
+        return <div>
+            <ul>
+            {
+                data.map({name, email} => <li>{name} - {email}</li>)
+            }
+            </ul>
+            <button onClick={() => setPageIndex(pageIndex + 10)}>Next page</button>
+        </div>
+    }
+    return null
+}
+```
+
+
+## useFrappeGetDocCount
+
+Parameters:
+
+| No. | Variable  | type               | Required | Description                                                    |
+| --- | --------- | ------------------ | -------- | -------------------------------------------------------------- |
+| 1.  | `doctype` | `string`           | ✅       | Name of the doctype                                            |
+| 2.  | `filters` | `Filter[]`         | -        | optional parameter to filter the result                        |
+| 3.  | `cache`   | `boolean`          | -        | Whether to cache the value on the server - default: `false`    |
+| 3.  | `debug`   | `boolean`          | -        | Whether to log debug messages on the server - default: `false` |
+| 3.  | `config`  | `SWRConfiguration` | -        | SWR Configuration Options                                      |
+
+```tsx copy
+export const DocumentCount = () => {
+  const { data, error, isValidating, mutate } = useFrappeGetDocCount(
+    'User',
+    /** Filters **/
+    [['enabled', '=', true]],
+    /** Cache the result on server **/
+    false,
+    /** Print debug logs on server **/
+    false,
+    {
+      /** SWR Configuration Options - Optional **/
+    }
+  );
+
+  if (isValidating) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (data) {
+    return (
+      <p>
+        {data} enabled users
+        <Button onClick={() => mutate()}>Reload</Button>
+      </p>
+    );
+  }
+  return null;
+};
+```
+### Examples
+
+#### Fetch total number of documents
+
+```tsx copy
+export const DocumentCount = () => {
+  const { data, error, isValidating } = useFrappeGetDocCount('User');
+
+  if (isValidating) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (data) {
+    return <p>{data} total users</p>;
+  }
+  return null;
+};
+```
+
+#### Fetch number of documents with filters
+
+```tsx copy
+export const DocumentCount = () => {
+  const { data, error, isLoading } = useFrappeGetDocCount('User', [
+    ['enabled', '=', true],
+  ]);
+
+  if (isLoading) {
+    return <>Loading</>;
+  }
+  if (error) {
+    return <>{JSON.stringify(error)}</>;
+  }
+  if (data) {
+    return <p>{data} enabled users</p>;
+  }
+  return null;
+};
+```

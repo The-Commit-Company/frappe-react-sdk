@@ -8,7 +8,7 @@ const config: DocsThemeConfig = {
   },
   docsRepositoryBase: 'https://github.com/The-Commit-Company/frappe-react-sdk',
   footer: {
-    text: 'Built using Nextra Docs Template',
+    text: 'Built by The Commit Company using Nextra',
   },
 }
 
