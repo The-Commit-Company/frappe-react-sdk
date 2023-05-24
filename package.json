@@ -50,7 +50,8 @@
   "peerDependencies": {
     "react": ">=17.x",
     "swr": "^2.1.5",
-    "frappe-js-sdk": "^1.2.4"
+    "frappe-js-sdk": "^1.2.4",
+    "socket.io-client": "^4.5.1"
   },
   "repository": {
     "type": "git",

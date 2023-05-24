@@ -8,7 +8,8 @@ import { Filter, FrappeDoc, GetDocListArgs } from 'frappe-js-sdk/lib/db/types'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import useSWR, { Key, SWRConfiguration, SWRResponse } from 'swr'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
-
+import { Socket } from "socket.io-client";
+import { SocketIO } from "./socket";
 
 export type { SWRConfiguration, SWRResponse, Key }
 
@@ -21,7 +22,8 @@ export interface FrappeConfig {
     auth: FrappeAuth,
     db: FrappeDB,
     call: FrappeCall,
-    file: FrappeFileUpload
+    file: FrappeFileUpload,
+    socket: Socket
 }
 
 export interface TokenParams {
@@ -35,9 +37,9 @@ export interface TokenParams {
 
 export const FrappeContext = createContext<null | FrappeConfig>(null)
 
-type FrappeProviderProps = PropsWithChildren<{ url?: string, tokenParams?: TokenParams }>
+type FrappeProviderProps = PropsWithChildren<{ url?: string, tokenParams?: TokenParams, socketPort?: string }>
 
-export const FrappeProvider = ({ url = "", tokenParams, children }: FrappeProviderProps) => {
+export const FrappeProvider = ({ url = "", tokenParams, socketPort, children }: FrappeProviderProps) => {
 
     const frappeConfig: FrappeConfig = useMemo(() => {
         //Add your Frappe backend's URL
@@ -50,14 +52,14 @@ export const FrappeProvider = ({ url = "", tokenParams, children }: FrappeProvid
             auth: frappe.auth(),
             db: frappe.db(),
             call: frappe.call(),
-            file: frappe.file()
+            file: frappe.file(),
+            socket: new SocketIO(url, socketPort).socket
         }
 
-    }, [url, tokenParams])
+    }, [url, tokenParams, socketPort])
 
     return <FrappeContext.Provider value={frappeConfig}>{children}</FrappeContext.Provider>
 }
-
 
 /**
  * Hook to start listening to user state and provides functions to login/logout
@@ -163,7 +165,7 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
  * 
  * @typeParam T - The type of the document
  */
-export const useFrappeGetDoc = <T,>(doctype: string, name?: string, swrKey?: Key, options?: SWRConfiguration): SWRResponse<FrappeDoc<T>, Error> => {
+export const useFrappeGetDoc = <T=any,>(doctype: string, name?: string, swrKey?: Key, options?: SWRConfiguration): SWRResponse<FrappeDoc<T>, Error> => {
 
     const { url, db } = useContext(FrappeContext) as FrappeConfig
 
@@ -236,7 +238,7 @@ export const getDocListQueryString = (args?: GetDocListArgs): string => {
  * 
 * @typeParam T - The type definition of the document object
  */
-export const useFrappeGetDocList = <T,>(doctype: string, args?: GetDocListArgs, swrKey?: Key, options?: SWRConfiguration): SWRResponse<T[], Error> => {
+export const useFrappeGetDocList = <T=any,>(doctype: string, args?: GetDocListArgs, swrKey?: Key, options?: SWRConfiguration): SWRResponse<T[], Error> => {
 
     const { url, db } = useContext(FrappeContext) as FrappeConfig
 
@@ -251,7 +253,7 @@ export const useFrappeGetDocList = <T,>(doctype: string, args?: GetDocListArgs, 
  * Hook to create a document in the database and maintain loading and error states
  * @returns Object with the following properties: loading, error, isCompleted and createDoc and reset functions
  */
-export const useFrappeCreateDoc = <T,>(): {
+export const useFrappeCreateDoc = <T=any,>(): {
     /** Function to create a document in the database */
     createDoc: (doctype: string, doc: T) => Promise<FrappeDoc<T>>,
     /** Will be true when the API request is pending.  */
@@ -309,7 +311,7 @@ export const useFrappeCreateDoc = <T,>(): {
  * Hook to update a document in the database and maintain loading and error states
  * @returns Object with the following properties: loading, error, isCompleted and updateDoc and reset functions
  */
-export const useFrappeUpdateDoc = <T,>(): {
+export const useFrappeUpdateDoc = <T=any,>(): {
     /** Function to update a document in the database */
     updateDoc: (doctype: string, docname: string | null, doc: Partial<T>) => Promise<FrappeDoc<T>>,
     /** Will be true when the API request is pending.  */
@@ -465,7 +467,7 @@ export const useFrappeGetDocCount = (doctype: string, filters?: Filter[], cache:
  * @typeParam T - Type of the data returned by the method
  * @returns an object (SWRResponse) with the following properties: data (number), error, isValidating, and mutate
  */
-export const useFrappeGetCall = <T,>(method: string, params?: Record<string, any>, swrKey?: Key, options?: SWRConfiguration): SWRResponse<T, Error> => {
+export const useFrappeGetCall = <T=any,>(method: string, params?: Record<string, any>, swrKey?: Key, options?: SWRConfiguration): SWRResponse<T, Error> => {
 
     const { call } = useContext(FrappeContext) as FrappeConfig
     const urlParams = encodeQueryData(params ?? {})
@@ -483,7 +485,7 @@ export const useFrappeGetCall = <T,>(method: string, params?: Record<string, any
  * @param method - name of the method to call (POST request) (will be dotted path e.g. "frappe.client.set_value")
  * @returns an object with the following properties: loading, error, isCompleted , result, and call and reset functions
  */
-export const useFrappePostCall = <T,>(method: string): {
+export const useFrappePostCall = <T=any,>(method: string): {
     /** Function to call the method. Returns a promise which resolves to the data returned by the method */
     call: (params: Record<string, any>) => Promise<T>,
     /** The result of the API call */
@@ -550,7 +552,7 @@ export const useFrappePostCall = <T,>(method: string): {
  * @param method - name of the method to call (PUT request) (will be dotted path e.g. "frappe.client.set_value")
  * @returns an object with the following properties: loading, error, isCompleted , result, and call and reset functions
  */
-export const useFrappePutCall = <T,>(method: string): {
+export const useFrappePutCall = <T=any,>(method: string): {
     /** Function to call the method. Returns a promise which resolves to the data returned by the method */
     call: (params: Record<string, any>) => Promise<T>,
     /** The result of the API call */
@@ -617,7 +619,7 @@ export const useFrappePutCall = <T,>(method: string): {
  * @param method - name of the method to call (DELETE request) (will be dotted path e.g. "frappe.client.delete")
  * @returns an object with the following properties: loading, error, isCompleted , result, and call and reset functions
  */
-export const useFrappeDeleteCall = <T,>(method: string): {
+export const useFrappeDeleteCall = <T=any,>(method: string): {
     /** Function to call the method. Returns a promise which resolves to the data returned by the method */
     call: (params: Record<string, any>) => Promise<T>,
     /** The result of the API call */
@@ -821,4 +823,152 @@ const useDebounce = (value: any, delay: number) => {
     }, [value, delay]);
 
     return debouncedValue;
+}
+
+
+/* ---- Socket IO Hooks ---- */
+/** useFrappeEventListener hook for listening to events from the server
+ * @param eventName - name of the event to listen to
+ * @param callback - callback function to be called when the event is triggered. The callback function will receive the data sent from the server. It is recommended to memoize this function.
+ * 
+ * @example
+ * ```typescript
+ * useFrappeEventListener('my_event', (data) => {
+ *     // do something with the data
+ *      if(data.status === 'success') {
+ *          console.log('success')
+ *      }
+ * })
+ * ```
+ */
+export const useFrappeEventListener = <T=any>(eventName: string, callback: (eventData: T) => void) => {
+
+    const { socket } = useContext(FrappeContext) as FrappeConfig
+
+    useEffect(() => {
+        let listener = socket.on(eventName, callback)
+
+        return () => {
+            listener.off(eventName)
+        }
+    }, [eventName, callback])
+
+}
+
+
+export interface ViewerEventData {
+    doctype: string,
+    docname: string,
+    users: string[],
+}
+
+export interface DocumentUpdateEventData {
+    doctype: string,
+    name: string,
+    modified: string,
+}
+/**
+ * Hook for listening to document events.
+ * The hook will automatically subscribe to the document room, and unsubscribe when the component unmounts.
+ * The hook listens to the following events:
+ * - doc_update: This is triggered when the document is updated. The callback function will receive the updated document.
+ * - doc_viewers: This is triggered when the list of viewers of the document changes. The hook will update the viewers state with the list of viewers.
+ * 
+ * @param doctype Name of the doctype
+ * @param docname Name of the document
+ * @param emitOpenCloseEventsOnMount [Optional] If true, the hook will emit doc_open and doc_close events on mount and unmount respectively. Defaults to true.
+ * @param onUpdateCallback Function to be called when the document is updated. It is recommended to memoize this function.
+ * @returns viewers - array of userID's, emitDocOpen - function to emit doc_open event, emitDocClose - function to emit doc_close event
+ */
+export const useFrappeDocumentEventListener = (
+    doctype: string,
+    docname: string,
+    emitOpenCloseEventsOnMount: boolean = true,
+    onUpdateCallback: (eventData: DocumentUpdateEventData) => void,
+) => {
+    const { socket } = useContext(FrappeContext) as FrappeConfig
+
+    /** Array of user IDs of users currently viewing the document. This is updated when "doc_viewers" event is published */
+    const [viewers, setViewers] = useState<string[]>([])
+
+    useEffect(() => {
+        socket.emit('doc_subscribe', doctype, docname)
+        if (emitOpenCloseEventsOnMount) {
+            socket.emit('doc_open', doctype, docname)
+        }
+
+        return () => {
+            socket.emit('doc_unsubscribe', doctype, docname)
+            if (emitOpenCloseEventsOnMount) {
+                socket.emit('doc_close', doctype, docname)
+            }
+        }
+    }, [doctype, docname, emitOpenCloseEventsOnMount]);
+
+    useFrappeEventListener('doc_update', onUpdateCallback)
+
+    /**
+     * Emit doc_open event - this will explicitly send a doc_open event to the server.
+     */
+    const emitDocOpen = useCallback(() => {
+        socket.emit('doc_open', doctype, docname)
+    }, [doctype, docname])
+
+    /**
+     * Emit doc_close event - this will explicitly send a doc_close event to the server.
+     */
+    const emitDocClose = useCallback(() => {
+        socket.emit('doc_close', doctype, docname)
+    }, [doctype, docname])
+
+    const onViewerEvent = useCallback((data: ViewerEventData) => {
+        if (data.doctype === doctype && data.docname === docname) {
+            setViewers(data.users)
+        }
+    }, [doctype, docname])
+
+    useFrappeEventListener('doc_viewers', onViewerEvent)
+
+    return {
+        /** Array of user IDs of users currently viewing the document. This is updated when "doc_viewers" event is published */
+        viewers,
+        /** Emit doc_open event - this will explicitly send a doc_open event to the server. */
+        emitDocOpen,
+        /** Emit doc_close event - this will explicitly send a doc_close event to the server. */
+        emitDocClose,
+    }
+
+}
+
+
+export interface DocTypeListUpdateEventData {
+    doctype: string,
+    name: string,
+    user: string
+}
+
+/**
+ * Hook for listening to doctype events.
+ * The hook will automatically subscribe to the doctype room, and unsubscribe when the component unmounts.
+ * The hook listens to the following event:
+ * - list_update: This is triggered when a document of the doctype is updated (created, modified or deleted). The callback function will receive the updated document.
+ * 
+ * @param doctype Name of the doctype
+ * @param onListUpdateCallback Function to be called when the document is updated. It is recommended to memoize this function.
+ */
+export const useFrappeDocTypeEventListener = (
+    doctype: string,
+    onListUpdateCallback: (eventData: DocTypeListUpdateEventData) => void,
+) => {
+    const { socket } = useContext(FrappeContext) as FrappeConfig
+
+    useEffect(() => {
+        socket.emit('doctype_subscribe', doctype)
+        return () => {
+            socket.emit('doctype_unsubscribe', doctype)
+        }
+    }, [doctype]);
+
+    useFrappeEventListener('list_update', onListUpdateCallback)
+
 }
