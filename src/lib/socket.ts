@@ -7,7 +7,7 @@ import { Socket } from 'socket.io-client'
  * @returns socket object
  * 
  * if url is not provided, it will be set to the current host and require socket_port
- * if socket_port is not provided, it will be set to 9001
+ * if socket_port is not provided, it will be set to 9000
 */
 export class SocketIO {
     private socket_port: string | undefined;
@@ -22,7 +22,7 @@ export class SocketIO {
         this.host = window.location.hostname;
         this.port = window.location.port ? `:${this.socket_port}` : '';
         this.protocol = this.port ? 'http' : 'https';
-        this.url = url ?? `${this.protocol}://${this.host}${this.port}`;
+        this.url = url ? url : `${this.protocol}://${this.host}${this.port}`;
         this.socket = io(this.url, { withCredentials: true });
     }
 }
