@@ -1,7 +1,25 @@
-import { Callout } from 'nextra-theme-docs'
-
 # Document Events
 
-<Callout type="error" emoji="🚨">
-This page is a stub. Help us expand it by contributing!
-</Callout>
+## useFrappeDocumentEventListener
+
+### Hook for listening to document events
+
+The hook will automatically subscribe to the document room, and unsubscribe when the component unmounts.
+The hook listens to the following events:
+- `doc_update`: This is triggered when the document is updated. The callback function will receive the updated document.
+- `doc_viewers`: This is triggered when the list of viewers of the document changes. The hook will update the viewers state with the list of viewers.
+
+Parameters:
+
+| No. | Variable                      | type                                             | Required | Description                                                                                                    |
+| --- | ----------------------------- | ------------------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------- |
+| 1.  | `doctype`                     | `string`                                         | ✅       | Name of the doctype                                                                                            |
+| 2.  | `docname`                     | `string`                                         | ✅       | Name of the document                                                                                           |
+| 3.  | `emitOpenCloseEventsOnMount`  | `boolean`                                        | -        | If true, the hook will emit doc_open and doc_close events on mount and unmount respectively. Defaults to true. |
+| 4.  | `onUpdateCallback`            | `(eventData: DocumentUpdateEventData) => void`   | -        | Function to be called when the document is updated. It is recommended to memoize this function.                |
+
+Returns:
+
+- `viewers`: List of user IDs of users currently viewing the document. This is updated when **doc_viewers** event is published.
+- `emitDocOpen`: Function to emit the **doc_open** event. This is used to notify other users that the document is being viewed. This will explicitly send the **doc_open** event to the server.
+- `emitDocClose`: Function to emit the **doc_close** event. This is used to notify other users that the document is no longer being viewed. This will explicitly send the **doc_close** event to the server.

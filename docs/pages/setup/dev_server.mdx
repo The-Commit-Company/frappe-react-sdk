@@ -1,7 +1,58 @@
-import { Callout } from 'nextra-theme-docs'
+import { Steps } from 'nextra-theme-docs'
 
 # Setting up your local dev server
 
-<Callout type="error" emoji="🚨">
-This page is a stub. Help us expand it by contributing!
-</Callout>
+<Steps>
+ 
+### Install `frappe-react-sdk`
+     
+```bash copy
+npm install frappe-react-sdk
+```
+or
+```bash copy
+yarn add frappe-react-sdk
+```
+ 
+### Initialising the library
+
+To get started, initialise the library by wrapping your App with the FrappeProvider. You can optionally provide the URL of your Frappe server if the web app is not hosted on the same URL.
+
+In `App.tsx` or `App.jsx`:
+ 
+```tsx copy
+import { FrappeProvider } from "frappe-react-sdk";
+
+function App() {
+    /** The URL is an optional parameter. Only use it if the Frappe server is hosted on a separate URL **/
+  return (
+    <FrappeProvider url='https://my-frappe-server.frappe.cloud'>
+    {/** Your other app components **/}
+    </FrappeProvider>
+  )
+}
+```
+
+In case you want to use the library with token based authentication (OAuth bearer tokens or API key/secret pairs), you can initialise the library like this:
+
+```tsx copy
+import { FrappeProvider } from "frappe-react-sdk";
+
+function App() {
+
+  /** The URL is an optional parameter. Only use it if the Frappe server is hosted on a separate URL **/
+  return (
+    <FrappeProvider url='https://my-frappe-server.frappe.cloud' tokenParams={
+        useToken: true,
+        // Pass a custom function that returns the token as a string - this could be fetched from LocalStorage or auth providers like Firebase, Auth0 etc.
+        token: getTokenFromLocalStorage(),
+        // This can be "Bearer" or "token"
+        type: "Bearer"
+    } >
+      {/** Your other app components **/}
+    </FrappeProvider>
+  );
+}
+```
+ 
+</Steps>

@@ -1,7 +1,17 @@
-import { Callout } from 'nextra-theme-docs'
-
 # DocTypeEvents
 
-<Callout type="error" emoji="🚨">
-This page is a stub. Help us expand it by contributing!
-</Callout>
+## useFrappeDocTypeEventListener
+
+### Hook for listening to DocType events
+
+The hook will automatically subscribe to the doctype room, and unsubscribe when the component unmounts.
+
+The hook listens to the following event:
+- `list_update`: This is triggered when a document of the doctype is **updated** (created, modified or deleted). The callback function will receive the updated document.
+
+Parameters:
+
+| No. | Variable                      | type                                             | Required | Description                                                                                                    |
+| --- | ----------------------------- | ------------------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------- |
+| 1.  | `doctype`                     | `string`                                         | ✅       | Name of the doctype                                                                                            |
+| 2.  | `onListUpdateCallback`        | `(eventData: DocTypeListUpdateEventData) => void`| ✅       | Function to be called when the document is updated. It is recommended to memoize this function.                |
