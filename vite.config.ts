@@ -20,9 +20,9 @@ export default defineConfig({
     }
   },
   plugins: [
-    react(),
     dts({
       insertTypesEntry: true,
-    })
+    }),
+    react()
   ]
 })
