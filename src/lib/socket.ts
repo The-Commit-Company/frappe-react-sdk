@@ -19,8 +19,8 @@ export class SocketIO {
 
     constructor(url?: string, socket_port?: string) {
         this.socket_port = socket_port ?? "9000";
-        this.host = window.location.hostname;
-        this.port = window.location.port ? `:${this.socket_port}` : '';
+        this.host = window.location?.hostname;
+        this.port = window.location?.port ? `:${this.socket_port}` : '';
         this.protocol = this.port ? 'http' : 'https';
         this.url = url ? url : `${this.protocol}://${this.host}${this.port}`;
         this.socket = io(this.url, { withCredentials: true });
