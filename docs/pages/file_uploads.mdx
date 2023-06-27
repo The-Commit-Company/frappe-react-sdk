@@ -1,7 +1,195 @@
-import { Callout } from 'nextra-theme-docs'
+import { Callout } from "nextra-theme-docs";
 
 # File Uploads
 
-<Callout type="error" emoji="🚨">
-This page is a stub. Help us expand it by contributing!
-</Callout>
+## useFrappeFileUpload
+
+This hook allows you to upload files to Frappe. It returns an object with the following properties:
+| No. | Properties | type | Description |
+| --- | ---------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| 1. | `upload` | `(file: File, args: FileArgs) => Promise<FrappeFileUploadResponse>` | Function to upload the file |
+| 2. | `progress` | `number` | Upload Progress in % - rounded off |
+| 3. | `loading` | `boolean` | Will be true when the file is being uploaded |
+| 4. | `error` | `Error \| null` | Error object returned from API call |
+| 5. | `isCompleted`| `boolean` | Will be true if file upload is successful. Else false. |
+| 6. | `reset` | `() => void` | Function to reset the state of the hook. |
+
+The `upload` function takes 2 arguments:
+
+1. `file` - The file to be uploaded
+2. `args` - An object with the following properties:
+
+| No. | Argument    | type      | Description                                    |
+| --- | ----------- | --------- | ---------------------------------------------- |
+| 1.  | `isPrivate` | `boolean` | If the file access is private then set to TRUE |
+| 2.  | `folder`    | `string`  | Folder the file exists in                      |
+| 3.  | `file_url`  | `string`  | File URL                                       |
+| 4.  | `doctype`   | `string`  | Doctype associated with the file               |
+| 5.  | `docname`   | `string`  | Docname/ document associated with the file     |
+| 6.  | `fieldname` | `string`  | Fieldname to be linked in the document         |
+
+```tsx copy
+export const FileUpload = () => {
+
+  const { upload, error, loading, progress, isCompleted, reset } = useFrappeFileUpload();
+
+  const [file, setFile] = useState<File>();
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files[0];
+    if (file) {
+      upload(file, {
+        isPrivate: true,
+        doctype: "User",
+        docname: "john@cena.com",
+        fieldname: "user_image",
+      })
+      .then((r) => {
+        console.log(r.file_url);
+        // Reset the state of the hook
+        reset();
+      });
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={(e) => setFile(e)} />
+      <button onClick={handleUpload}>Upload</button>
+
+      {loading && (
+        <div>
+          <p>Uploading...</p>
+          <p>{progress}%</p>
+        </div>
+      )}
+
+      {error && <p>{error}</p>}
+
+      {isCompleted && <p>Upload Complete</p>}
+    </div>
+  );
+};
+```
+
+### Examples
+
+#### Create a new document with an attachment
+
+```tsx copy
+export const CreateUser = () => {
+
+  const { upload, error, loading } = useFrappeFileUpload();
+
+  const { createDoc } = useFrappeCreateDoc();
+
+  const { updateDoc } = useFrappeUpdateDoc();
+
+  const [email, setEmail] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [file, setFile] = useState<File>();
+
+  const createUser = () => {
+    const file = e.target.files[0];
+    if (file) {
+      createDoc("User", {
+        email: email,
+        first_name: first_name,
+      })
+        .then((doc) => {
+          return upload(file, {
+            is_private: 1,
+            doctype: "User",
+            docname: doc.name,
+            fieldname: "user_image",
+          });
+        })
+        .then((file) => {
+          return updateDoc("User", user, {
+            user_image: file.file_url,
+          });
+        })
+        .then(() => {
+          alert("User created");
+        });
+    }
+  };
+
+  return (
+    <div>
+      {loading && <p>Uploading...</p>}
+      {error && <p>{error}</p>}
+      <input
+        type="text"
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          setEmail(e.target.value)
+        }
+      />
+      <input
+        type="text"
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          setFirstName(e.target.value)
+        }
+      />
+      <input type="file" name="attachment" onChange={(e) => setFile(e)} />
+      <button onClick={createUser}>Create</button>
+    </div>
+  );
+};
+```
+
+#### Upload multiple files
+
+```tsx copy
+export const MultipleFileUpload = () => {
+    
+  const { upload, error, loading } = useFrappeFileUpload();
+
+  const [files, setFiles] = useState<FileList>([]);
+
+  const handleUpload = () => {
+    if (files.length) {
+      const promises = files.map(async (f: CustomFile) => {
+        let docname = "";
+        setUploading(true);
+        return createDoc("Drawing File", {
+          ...data,
+          file_name: f.name.split(".pdf")[0],
+          batch_name: batchID,
+        })
+          .then((d) => {
+            docname = d.name;
+            return upload(f, {
+              isPrivate: true,
+              doctype: "Drawing File",
+              docname: d.name,
+              fieldname: "file",
+            });
+          })
+          .then((r) => {
+            return updateDoc("Drawing File", docname, {
+              file: r.file_url,
+            });
+          });
+      });
+
+      Promise.all(promises)
+        .then(() => {
+          alert("Files uploaded");
+        })
+        .catch((e) => {
+          console.error(e);
+          alert("Error uploading files");
+        });
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleUpload} />
+      {loading && <p>Uploading...</p>}
+      {error && <p>{error}</p>}
+    </div>
+  );
+};
+```

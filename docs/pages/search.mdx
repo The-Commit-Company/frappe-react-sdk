@@ -1,7 +1,50 @@
-import { Callout } from 'nextra-theme-docs'
-
 # Search
 
-<Callout type="error" emoji="🚨">
-This page is a stub. Help us expand it by contributing!
-</Callout>
+## useSearch
+
+Parameters:
+
+| No. | Variable   | type       | Required | Description                                                                       |
+| --- | ---------- | ---------- | -------- | --------------------------------------------------------------------------------- |
+| 1.  | `doctype`  | `string`   | ✅       | Name of the doctype                                                               |
+| 2.  | `text`     | `string`   | ✅       | Query string                                                                      |
+| 3.  | `filters`  | `Filter[]` | -        | optional parameter to filter the result                                           |
+| 4.  | `limit`    | `number`   | -        | the number of results to return. Defaults to 20                                   |
+| 5.  | `debounce` | `number`   | -        | the number of milliseconds to wait before making the API call. Defaults to 250ms. |
+
+```tsx copy
+export const Search = () => {
+
+  const [searchText, setSearchText] = useState('');
+  const { result } = useSearch('Item', searchText);
+
+  const handleSearchTextChange = (e) => {
+    setSearchText(e.target.value);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setSearchText(suggestion.title);
+    // Perform additional action based on the selected suggestion
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={searchText}
+        onChange={handleSearchTextChange}
+        placeholder="Search..."
+      />
+      {result.length > 0 && (
+        <ul className="dropdown-menu">
+          {result.map((item) => (
+            <li key={item.id} onClick={() => handleSuggestionClick(item)}>
+              {item.title}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+```
