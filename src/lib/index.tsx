@@ -452,7 +452,7 @@ function encodeQueryData(data: Record<string, any>) {
  * @returns an object (SWRResponse) with the following properties: data (number), error, isValidating, and mutate
  * 
  */
-export const useFrappeGetDocCount = <T,>(doctype: string, filters?: Filter<T>[], cache: boolean = false, debug: boolean = false, swrKey?: Key, options?: SWRConfiguration): SWRResponse<number, Error> => {
+export const useFrappeGetDocCount = <T=any,>(doctype: string, filters?: Filter<T>[], cache: boolean = false, debug: boolean = false, swrKey?: Key, options?: SWRConfiguration): SWRResponse<number, Error> => {
 
     const { url, db } = useContext(FrappeContext) as FrappeConfig
     const getUniqueURLKey = () => {
