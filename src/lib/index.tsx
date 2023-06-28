@@ -894,8 +894,8 @@ export interface DocumentUpdateEventData {
 export const useFrappeDocumentEventListener = (
     doctype: string,
     docname: string,
-    emitOpenCloseEventsOnMount: boolean = true,
     onUpdateCallback: (eventData: DocumentUpdateEventData) => void,
+    emitOpenCloseEventsOnMount: boolean = true,
 ) => {
     const { socket } = useContext(FrappeContext) as FrappeConfig
 
