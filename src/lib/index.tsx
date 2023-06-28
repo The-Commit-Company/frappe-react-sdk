@@ -249,12 +249,11 @@ export const getDocListQueryString = (args?: GetDocListArgs): string => {
  * 
 * @typeParam T - The type definition of the document object
  */
-export const useFrappeGetDocList = <T=any,>(doctype: string, args?: GetDocListArgs<T>, swrKey?: Key, options?: SWRConfiguration) => {
+export const useFrappeGetDocList = <T=any,K=FrappeDoc<T>>(doctype: string, args?: GetDocListArgs<K>, swrKey?: Key, options?: SWRConfiguration) => {
 
     const { url, db } = useContext(FrappeContext) as FrappeConfig
-    const fieldVariables: (keyof FrappeDoc<T>)[] = args?.fields ?? ['name'];
-    type GetDocListReturnType = Pick<FrappeDoc<T>, typeof fieldVariables[number]>[];
-    const swrResult = useSWR<GetDocListReturnType, Error>(swrKey === undefined ? `${getRequestURL(doctype, url)}?${getDocListQueryString(args)}` : swrKey, () => db.getDocList<T>(doctype, args), options)
+
+    const swrResult = useSWR<T[], Error>(swrKey === undefined ? `${getRequestURL(doctype, url)}?${getDocListQueryString(args)}` : swrKey, () => db.getDocList<T, K>(doctype, args), options)
 
     return {
         ...swrResult
