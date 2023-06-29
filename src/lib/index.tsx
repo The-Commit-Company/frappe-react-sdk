@@ -53,7 +53,7 @@ export const FrappeProvider = ({ url = "", tokenParams, socketPort, children }: 
             db: frappe.db(),
             call: frappe.call(),
             file: frappe.file(),
-            socket: new SocketIO(url, socketPort).socket
+            socket: new SocketIO(url, socketPort,tokenParams).socket
         }
 
     }, [url, tokenParams, socketPort])

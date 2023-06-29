@@ -1,5 +1,6 @@
 import io from 'socket.io-client'
 import { Socket } from 'socket.io-client'
+import { TokenParams } from '.';
 
 /** Socket class
  * @param url [Optional] url to connect to
@@ -17,12 +18,15 @@ export class SocketIO {
     private url: string;
     public socket: Socket;
 
-    constructor(url?: string, socket_port?: string) {
+
+    constructor(url?: string, socket_port?: string, tokenParams?: TokenParams) {
         this.socket_port = socket_port ?? "9000";
         this.host = window.location?.hostname;
         this.port = window.location?.port ? `:${this.socket_port}` : '';
         this.protocol = this.port ? 'http' : 'https';
         this.url = url ? url : `${this.protocol}://${this.host}${this.port}`;
-        this.socket = io(this.url, { withCredentials: true });
+        this.socket = io(this.url, { withCredentials: true, extraHeaders: tokenParams && tokenParams.useToken ===true ? {
+                Authorization: `${tokenParams.type} ${tokenParams.token}`} : {}
+        });
     }
 }
