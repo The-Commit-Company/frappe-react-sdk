@@ -23,7 +23,7 @@ export interface FrappeConfig {
     db: FrappeDB,
     call: FrappeCall,
     file: FrappeFileUpload,
-    socket: Socket
+    socket?: Socket
 }
 
 export interface TokenParams {
@@ -37,9 +37,16 @@ export interface TokenParams {
 
 export const FrappeContext = createContext<null | FrappeConfig>(null)
 
-type FrappeProviderProps = PropsWithChildren<{ url?: string, tokenParams?: TokenParams, socketPort?: string }>
+type FrappeProviderProps = PropsWithChildren<{ 
+    url?: string, 
+    tokenParams?: TokenParams, 
+    /** Port on which Socket is running. Only meant for local development. Set to undefined on production. */
+    socketPort?: string, 
+    /** Flag to disable socket, if needed. This defaults to true. */
+    enableSocket?: boolean
+ }>
 
-export const FrappeProvider = ({ url = "", tokenParams, socketPort, children }: FrappeProviderProps) => {
+export const FrappeProvider = ({ url = "", tokenParams, socketPort, enableSocket = true, children }: FrappeProviderProps) => {
 
     const frappeConfig: FrappeConfig = useMemo(() => {
         //Add your Frappe backend's URL
@@ -53,10 +60,12 @@ export const FrappeProvider = ({ url = "", tokenParams, socketPort, children }: 
             db: frappe.db(),
             call: frappe.call(),
             file: frappe.file(),
-            socket: new SocketIO(url, socketPort,tokenParams).socket
+            socket: enableSocket ? new SocketIO(url, socketPort,tokenParams).socket : undefined,
+            enableSocket,
+            socketPort
         }
 
-    }, [url, tokenParams, socketPort])
+    }, [url, tokenParams, socketPort, enableSocket])
 
     return <FrappeContext.Provider value={frappeConfig}>{children}</FrappeContext.Provider>
 }
@@ -857,10 +866,13 @@ export const useFrappeEventListener = <T=any>(eventName: string, callback: (even
     const { socket } = useContext(FrappeContext) as FrappeConfig
 
     useEffect(() => {
-        let listener = socket.on(eventName, callback)
+        if(socket === undefined){
+            console.warn('Socket is not enabled. Please enable socket in FrappeProvider.')
+        }
+        let listener = socket?.on(eventName, callback)
 
         return () => {
-            listener.off(eventName)
+            listener?.off(eventName)
         }
     }, [eventName, callback])
 
@@ -903,15 +915,18 @@ export const useFrappeDocumentEventListener = (
     const [viewers, setViewers] = useState<string[]>([])
 
     useEffect(() => {
-        socket.emit('doc_subscribe', doctype, docname)
+        if(socket === undefined){
+            console.warn('Socket is not enabled. Please enable socket in FrappeProvider.')
+        }
+        socket?.emit('doc_subscribe', doctype, docname)
         if (emitOpenCloseEventsOnMount) {
-            socket.emit('doc_open', doctype, docname)
+            socket?.emit('doc_open', doctype, docname)
         }
 
         return () => {
-            socket.emit('doc_unsubscribe', doctype, docname)
+            socket?.emit('doc_unsubscribe', doctype, docname)
             if (emitOpenCloseEventsOnMount) {
-                socket.emit('doc_close', doctype, docname)
+                socket?.emit('doc_close', doctype, docname)
             }
         }
     }, [doctype, docname, emitOpenCloseEventsOnMount]);
@@ -922,14 +937,14 @@ export const useFrappeDocumentEventListener = (
      * Emit doc_open event - this will explicitly send a doc_open event to the server.
      */
     const emitDocOpen = useCallback(() => {
-        socket.emit('doc_open', doctype, docname)
+        socket?.emit('doc_open', doctype, docname)
     }, [doctype, docname])
 
     /**
      * Emit doc_close event - this will explicitly send a doc_close event to the server.
      */
     const emitDocClose = useCallback(() => {
-        socket.emit('doc_close', doctype, docname)
+        socket?.emit('doc_close', doctype, docname)
     }, [doctype, docname])
 
     const onViewerEvent = useCallback((data: ViewerEventData) => {
@@ -974,9 +989,12 @@ export const useFrappeDocTypeEventListener = (
     const { socket } = useContext(FrappeContext) as FrappeConfig
 
     useEffect(() => {
-        socket.emit('doctype_subscribe', doctype)
+        if(socket === undefined){
+            console.warn('Socket is not enabled. Please enable socket in FrappeProvider.')
+        }
+        socket?.emit('doctype_subscribe', doctype)
         return () => {
-            socket.emit('doctype_unsubscribe', doctype)
+            socket?.emit('doctype_unsubscribe', doctype)
         }
     }, [doctype]);
 
