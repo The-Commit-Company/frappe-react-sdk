@@ -16,16 +16,19 @@ export class SocketIO {
     private port: string;
     private protocol: string;
     private url: string;
+    private site_name: string | undefined;
     public socket: Socket;
 
 
-    constructor(url?: string, socket_port?: string, tokenParams?: TokenParams) {
+    constructor(url?: string, site_name?: string, socket_port?: string, tokenParams?: TokenParams) {
         this.socket_port = socket_port ?? "9000";
         this.host = window.location?.hostname;
         this.port = window.location?.port ? `:${this.socket_port}` : '';
         this.protocol = this.port ? 'http' : 'https';
         this.url = url ? url : `${this.protocol}://${this.host}${this.port}`;
-        this.socket = io(this.url, { withCredentials: true, extraHeaders: tokenParams && tokenParams.useToken ===true ? {
+        //@ts-ignore
+        this.site_name = site_name ?? frappe?.boot.sitename
+        this.socket = io(`${this.url}/${this.site_name}`, { withCredentials: true, secure: this.protocol === 'https', extraHeaders: tokenParams && tokenParams.useToken ===true ? {
                 Authorization: `${tokenParams.type} ${tokenParams.token}`} : {}
         });
     }

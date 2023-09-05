@@ -42,11 +42,15 @@ type FrappeProviderProps = PropsWithChildren<{
     tokenParams?: TokenParams, 
     /** Port on which Socket is running. Only meant for local development. Set to undefined on production. */
     socketPort?: string, 
+    /** Get this from frappe.local.site on the server, or frappe.boot.sitename on the window.
+     * Required for Socket connection to work in Frappe v14+
+      */
+    siteName?: string,
     /** Flag to disable socket, if needed. This defaults to true. */
     enableSocket?: boolean
  }>
 
-export const FrappeProvider = ({ url = "", tokenParams, socketPort, enableSocket = true, children }: FrappeProviderProps) => {
+export const FrappeProvider = ({ url = "", tokenParams, socketPort, siteName, enableSocket = true, children }: FrappeProviderProps) => {
 
     const frappeConfig: FrappeConfig = useMemo(() => {
         //Add your Frappe backend's URL
@@ -60,7 +64,7 @@ export const FrappeProvider = ({ url = "", tokenParams, socketPort, enableSocket
             db: frappe.db(),
             call: frappe.call(),
             file: frappe.file(),
-            socket: enableSocket ? new SocketIO(url, socketPort,tokenParams).socket : undefined,
+            socket: enableSocket ? new SocketIO(url, siteName, socketPort,tokenParams).socket : undefined,
             enableSocket,
             socketPort
         }
