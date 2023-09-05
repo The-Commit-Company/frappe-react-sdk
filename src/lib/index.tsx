@@ -6,13 +6,13 @@ import { FrappeFileUpload } from "frappe-js-sdk/lib/file";
 import { Error } from 'frappe-js-sdk/lib/frappe_app/types';
 import { Filter, FrappeDoc, GetDocListArgs } from 'frappe-js-sdk/lib/db/types'
 import { useCallback, useContext, useEffect, useState } from 'react'
-import useSWR, { Key, SWRConfiguration, SWRResponse } from 'swr'
+import useSWR, { Key, SWRConfiguration, SWRResponse, useSWRConfig } from 'swr'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
 import { Socket } from "socket.io-client";
 import { SocketIO } from "./socket";
 
 export type { SWRConfiguration, SWRResponse, Key }
-
+export { useSWR, useSWRConfig }
 export type { FrappeDoc, GetDocListArgs, Filter, FileArgs, Error as FrappeError }
 export interface FrappeConfig {
     /** The URL of your Frappe server */
