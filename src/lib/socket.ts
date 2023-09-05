@@ -26,8 +26,7 @@ export class SocketIO {
         this.port = window.location?.port ? `:${this.socket_port}` : '';
         this.protocol = this.port ? 'http' : 'https';
         this.url = url ? url : `${this.protocol}://${this.host}${this.port}`;
-        //@ts-ignore
-        this.site_name = site_name ?? frappe?.boot.sitename
+        this.site_name = site_name
         this.socket = io(`${this.url}/${this.site_name}`, { withCredentials: true, secure: this.protocol === 'https', extraHeaders: tokenParams && tokenParams.useToken ===true ? {
                 Authorization: `${tokenParams.type} ${tokenParams.token}`} : {}
         });
