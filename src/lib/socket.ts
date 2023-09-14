@@ -31,17 +31,21 @@ export class SocketIO {
             let urlObject = new URL(url)
             urlObject.port = ''
             if(socket_port){
-                this.url = url.toString() + `:${socket_port}`
+                urlObject.port = socket_port
+                this.url = urlObject.toString()
             }else{
-                this.url = url.toString()
+                this.url = urlObject.toString()
             }
         }else{
             // If a URL is not specified (mostly on prod systems), then we can fetch it from the window
-            this.url = `${this.protocol}://${this.host}${this.port}`;
+            this.url = `${this.protocol}://${this.host}${this.port}/`;
         }
-        
-        this.site_name = site_name
-        this.socket = io(`${this.url}/${this.site_name}`, { withCredentials: true, secure: this.protocol === 'https', extraHeaders: tokenParams && tokenParams.useToken ===true ? {
+
+        if (site_name){
+            this.url = `${this.url}${site_name}`
+        }
+        console.log(this.url)
+        this.socket = io(`${this.url}`, { withCredentials: true, secure: this.protocol === 'https', extraHeaders: tokenParams && tokenParams.useToken ===true ? {
                 Authorization: `${tokenParams.type} ${tokenParams.token}`} : {}
         });
     }
