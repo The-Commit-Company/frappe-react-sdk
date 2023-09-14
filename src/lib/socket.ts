@@ -44,7 +44,7 @@ export class SocketIO {
         if (site_name){
             this.url = `${this.url}${site_name}`
         }
-        console.log(this.url)
+        this.site_name = site_name;
         this.socket = io(`${this.url}`, { withCredentials: true, secure: this.protocol === 'https', extraHeaders: tokenParams && tokenParams.useToken ===true ? {
                 Authorization: `${tokenParams.type} ${tokenParams.token}`} : {}
         });
