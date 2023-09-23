@@ -741,9 +741,9 @@ export interface FrappeFileUploadResponse {
  * 
  * @returns an object with the following properties: loading, error, isCompleted , result, and call and reset functions
  */
-export const useFrappeFileUpload = (): {
+export const useFrappeFileUpload = <T = any>(): {
     /** Function to upload the file */
-    upload: (file: File, args: FileArgs) => Promise<FrappeFileUploadResponse>,
+    upload: (file: File, args: FileArgs<T>, apiPath?: string) => Promise<FrappeFileUploadResponse>,
     /** Upload Progress in % - rounded off */
     progress: number,
     /** Will be true when the file is being uploaded  */
@@ -762,11 +762,10 @@ export const useFrappeFileUpload = (): {
     const [error, setError] = useState<Error | null>(null)
     const [isCompleted, setIsCompleted] = useState(false)
 
-    const upload = useCallback(async (f: File, args: FileArgs) => {
+    const upload = useCallback(async (f: File, args: FileArgs<T>, apiPath?: string) => {
         reset()
         setLoading(true)
-        return file.uploadFile(f, args, (c, t) => setProgress(Math.round((c / t) * 100))
-        )
+        return file.uploadFile(f, args, (c, t) => setProgress(Math.round((c / t) * 100)), apiPath)
             .then((r) => {
                 setIsCompleted(true)
                 setProgress(100)
