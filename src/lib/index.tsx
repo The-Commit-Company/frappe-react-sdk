@@ -10,6 +10,7 @@ import useSWR, { Key, SWRConfiguration, SWRResponse, useSWRConfig } from 'swr'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
 import { Socket } from "socket.io-client";
 import { SocketIO } from "./socket";
+import { AuthResponse } from "frappe-js-sdk/lib/auth/types";
 
 export type { SWRConfiguration, SWRResponse, Key }
 export { useSWR, useSWRConfig }
@@ -90,7 +91,7 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
     /** Error object returned from API call */
     error: Error | null | undefined,
     /** Function to login the user with email and password */
-    login: (username: string, password: string) => Promise<void>,
+    login: (username: string, password: string) => Promise<AuthResponse>,
     /** Function to log the user out */
     logout: () => Promise<any>,
     /** Function to fetch updated user state */
@@ -146,6 +147,7 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
     const login = useCallback(async (username: string, password: string) => {
         return auth.loginWithUsernamePassword({ username, password }).then((m) => {
             getUserCookie()
+            return m
         })
     }, [])
 
