@@ -14,7 +14,7 @@ import { AuthResponse } from "frappe-js-sdk/lib/auth/types";
 
 export type { SWRConfiguration, SWRResponse, Key }
 export { useSWR, useSWRConfig }
-export type { FrappeDoc, GetDocListArgs, Filter, FileArgs, Error as FrappeError }
+export type {AuthResponse, FrappeDoc, GetDocListArgs, Filter, FileArgs, Error as FrappeError }
 export interface FrappeConfig {
     /** The URL of your Frappe server */
     url: string;
