@@ -10,11 +10,11 @@ import useSWR, { Key, SWRConfiguration, SWRResponse, useSWRConfig } from 'swr'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
 import { Socket } from "socket.io-client";
 import { SocketIO } from "./socket";
-import { AuthResponse } from "frappe-js-sdk/lib/auth/types";
+import { AuthCredentials, AuthResponse ,OTPCredentials,UserPassCredentials} from "frappe-js-sdk/lib/auth/types";
 
 export type { SWRConfiguration, SWRResponse, Key }
 export { useSWR, useSWRConfig }
-export type {AuthResponse, FrappeDoc, GetDocListArgs, Filter, FileArgs, Error as FrappeError }
+export type {OTPCredentials,UserPassCredentials,AuthCredentials,AuthResponse, FrappeDoc, GetDocListArgs, Filter, FileArgs, Error as FrappeError }
 export interface FrappeConfig {
     /** The URL of your Frappe server */
     url: string;
@@ -91,7 +91,8 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
     /** Error object returned from API call */
     error: Error | null | undefined,
     /** Function to login the user with email and password */
-    login: (username: string, password: string) => Promise<AuthResponse>,
+    // login: ({username, password,otp,tmp_id}:AuthCredentials) => Promise<AuthResponse>,
+    login:(credentials:AuthCredentials) => Promise<AuthResponse>,
     /** Function to log the user out */
     logout: () => Promise<any>,
     /** Function to fetch updated user state */
@@ -144,8 +145,9 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
         ...options,
     })
 
-    const login = useCallback(async (username: string, password: string) => {
-        return auth.loginWithUsernamePassword({ username, password }).then((m) => {
+    const login = useCallback(async (credentials:AuthCredentials) => {
+        return auth.loginWithUsernamePassword(credentials)
+        .then((m) => {
             getUserCookie()
             return m
         })
