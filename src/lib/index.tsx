@@ -769,7 +769,11 @@ export const useFrappeFileUpload = <T = any>(): {
     const upload = useCallback(async (f: File, args: FileArgs<T>, apiPath?: string) => {
         reset()
         setLoading(true)
-        return file.uploadFile(f, args, (c, t) => setProgress(Math.round((c / t) * 100)), apiPath)
+        return file.uploadFile(f, args, (c, t) => {
+            if(t){
+                setProgress(Math.round((c / t) * 100))
+            }
+        }, apiPath)
             .then((r) => {
                 setIsCompleted(true)
                 setProgress(100)
