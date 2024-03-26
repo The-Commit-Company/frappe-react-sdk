@@ -930,6 +930,12 @@ export const useFrappeDocumentEventListener = (
             console.warn('Socket is not enabled. Please enable socket in FrappeProvider.')
         }
         socket?.emit('doc_subscribe', doctype, docname)
+
+        // Re-subscribe on reconnect
+        socket?.io.on("reconnect", () => {
+            socket?.emit('doc_subscribe', doctype, docname)
+        })
+
         if (emitOpenCloseEventsOnMount) {
             socket?.emit('doc_open', doctype, docname)
         }
@@ -1004,6 +1010,11 @@ export const useFrappeDocTypeEventListener = (
             console.warn('Socket is not enabled. Please enable socket in FrappeProvider.')
         }
         socket?.emit('doctype_subscribe', doctype)
+
+        // Re-subscribe on reconnect
+        socket?.io.on("reconnect", () => {
+            socket?.emit('doctype_subscribe', doctype)
+        })
         return () => {
             socket?.emit('doctype_unsubscribe', doctype)
         }
