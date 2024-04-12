@@ -7,13 +7,14 @@ import { Error } from 'frappe-js-sdk/lib/frappe_app/types';
 import { Filter, FrappeDoc, GetDocListArgs } from 'frappe-js-sdk/lib/db/types'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import useSWR, { Key, SWRConfiguration, SWRResponse, useSWRConfig } from 'swr'
+import useSWRInfinite from 'swr/infinite'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
 import { Socket } from "socket.io-client";
 import { SocketIO } from "./socket";
 import { AuthCredentials, AuthResponse ,OTPCredentials,UserPassCredentials} from "frappe-js-sdk/lib/auth/types";
 
 export type { SWRConfiguration, SWRResponse, Key }
-export { useSWR, useSWRConfig }
+export { useSWR, useSWRConfig, useSWRInfinite }
 export type {OTPCredentials,UserPassCredentials,AuthCredentials,AuthResponse, FrappeDoc, GetDocListArgs, Filter, FileArgs, Error as FrappeError }
 export interface FrappeConfig {
     /** The URL of your Frappe server */
