@@ -6,7 +6,7 @@ import { FrappeFileUpload } from "frappe-js-sdk/lib/file";
 import { Error } from 'frappe-js-sdk/lib/frappe_app/types';
 import { Filter, FrappeDoc, GetDocListArgs } from 'frappe-js-sdk/lib/db/types'
 import { useCallback, useContext, useEffect, useState } from 'react'
-import useSWR, { Key, SWRConfiguration, SWRResponse, useSWRConfig } from 'swr'
+import useSWR, { Key, SWRConfiguration, SWRResponse, useSWRConfig, SWRConfig } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
 import { Socket } from "socket.io-client";
@@ -49,10 +49,11 @@ type FrappeProviderProps = PropsWithChildren<{
       */
     siteName?: string,
     /** Flag to disable socket, if needed. This defaults to true. */
-    enableSocket?: boolean
+    enableSocket?: boolean,
+    swrConfig?: SWRConfiguration
  }>
 
-export const FrappeProvider = ({ url = "", tokenParams, socketPort, siteName, enableSocket = true, children }: FrappeProviderProps) => {
+export const FrappeProvider = ({ url = "", tokenParams, socketPort, swrConfig, siteName, enableSocket = true, children }: FrappeProviderProps) => {
 
     const frappeConfig: FrappeConfig = useMemo(() => {
         //Add your Frappe backend's URL
@@ -73,7 +74,11 @@ export const FrappeProvider = ({ url = "", tokenParams, socketPort, siteName, en
 
     }, [url, tokenParams, socketPort, enableSocket])
 
-    return <FrappeContext.Provider value={frappeConfig}>{children}</FrappeContext.Provider>
+    return <FrappeContext.Provider value={frappeConfig}>
+            <SWRConfig value={swrConfig}>
+                {children}
+            </SWRConfig>
+    </FrappeContext.Provider>
 }
 
 /**
