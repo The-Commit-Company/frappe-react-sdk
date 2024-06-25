@@ -24,7 +24,7 @@ export class SocketIO {
         this.socket_port = socket_port ?? "9000";
         this.host = window.location?.hostname;
         this.port = window.location?.port ? `:${this.socket_port}` : '';
-        this.protocol = this.port ? 'http' : 'https';
+        this.protocol = window.location?.protocol === 'https:' ? 'https' : 'http';
         if(url){
             // If URL is specified, we need to remove the port from it if it exists. 
             //If a socket port is passed on, then we need to append it to URL
