@@ -831,7 +831,7 @@ export interface SearchResult {
   */
 export const useSearch = (doctype: string, text: string, filters: Filter[] = [], limit: number = 20, debounce: number = 250) => {
     const debouncedText = useDebounce(text, debounce);
-    const swrResult = useFrappeGetCall<{ results: SearchResult[] }>('frappe.desk.search.search_link', {
+    const swrResult = useFrappeGetCall<{ message: SearchResult[] }>('frappe.desk.search.search_link', {
         doctype,
         page_length: limit,
         txt: debouncedText,

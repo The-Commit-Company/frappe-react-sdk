@@ -1,7 +1,7 @@
 {
   "name": "frappe-react-sdk",
   "description": "React hooks for Frappe Framework",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "license": "MIT",
   "author": {
     "name": "The Commit Company",
