@@ -50,14 +50,16 @@ type FrappeProviderProps = PropsWithChildren<{
     siteName?: string,
     /** Flag to disable socket, if needed. This defaults to true. */
     enableSocket?: boolean,
-    swrConfig?: SWRConfiguration
+    swrConfig?: SWRConfiguration,
+    /** Custom Headers to be passed in each request */
+    customHeaders?: object
  }>
 
-export const FrappeProvider = ({ url = "", tokenParams, socketPort, swrConfig, siteName, enableSocket = true, children }: FrappeProviderProps) => {
+export const FrappeProvider = ({ url = "", tokenParams, socketPort, swrConfig, siteName, enableSocket = true, children, customHeaders }: FrappeProviderProps) => {
 
     const frappeConfig: FrappeConfig = useMemo(() => {
         //Add your Frappe backend's URL
-        const frappe = new FrappeApp(url, tokenParams)
+        const frappe = new FrappeApp(url, tokenParams, undefined, customHeaders)
 
         return {
             url,
@@ -72,7 +74,7 @@ export const FrappeProvider = ({ url = "", tokenParams, socketPort, swrConfig, s
             socketPort
         }
 
-    }, [url, tokenParams, socketPort, enableSocket])
+    }, [url, tokenParams, socketPort, enableSocket, customHeaders])
 
     return <FrappeContext.Provider value={frappeConfig}>
             <SWRConfig value={swrConfig}>
