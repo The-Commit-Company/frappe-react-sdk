@@ -499,17 +499,18 @@ export const useFrappeGetDocCount = <T=any,>(doctype: string, filters?: Filter<T
  * @param params - parameters to pass to the method
  * @param swrKey - optional SWRKey that will be used to cache the result. If not provided, the method name with the URL params will be used as the key
  * @param options [Optional] SWRConfiguration options for fetching data
+ * @param requestType - GET or POST request. Defaults to GET
  * 
  * @typeParam T - Type of the data returned by the method
  * @returns an object (SWRResponse) with the following properties: data (number), error, isValidating, and mutate
  */
-export const useFrappeGetCall = <T=any,>(method: string, params?: Record<string, any>, swrKey?: Key, options?: SWRConfiguration): SWRResponse<T, Error> => {
+export const useFrappeGetCall = <T=any,>(method: string, params?: Record<string, any>, swrKey?: Key, options?: SWRConfiguration, requestType: "GET" | "POST" = "GET"): SWRResponse<T, Error> => {
 
     const { call } = useContext(FrappeContext) as FrappeConfig
     const urlParams = encodeQueryData(params ?? {})
     const url = `${method}?${urlParams}`
 
-    const swrResult = useSWR<T, Error>(swrKey === undefined ? url : swrKey, () => call.get<T>(method, params), options)
+    const swrResult = useSWR<T, Error>(swrKey === undefined ? url : swrKey, () => requestType === "GET" ? call.get<T>(method, params) : call.post<T>(method, params), options)
 
     return {
         ...swrResult
