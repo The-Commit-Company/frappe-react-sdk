@@ -231,6 +231,31 @@ export const useFrappeGetDoc = <T=any,>(doctype: string, name?: string, swrKey?:
     return swrResult
 }
 /**
+ * Hook to prefetch a document from the database
+ * @param doctype - The doctype to fetch
+ * @param name - The name of the document to fetch
+ * @param swrKey - The SWRKey to use for caching the result - optional
+ * @param options - The SWRConfiguration options for fetching data
+ * @returns A function to prefetch the document
+ * 
+ * @example
+ * 
+ * const preloadDoc = useFrappePrefetchGetDoc("User", "test@example.com")
+ * 
+ * // Call the function when you want to prefetch the document
+ * const onHover = () => {
+ *      preloadDoc()
+ * }
+ */
+export const useFrappePrefetchGetDoc = <T=any>(doctype: string, name?: string, swrKey?: Key, options?: SWRConfiguration) => {
+    const { db, url } = useContext(FrappeContext) as FrappeConfig
+    const key = swrKey === undefined ? getRequestURL(doctype, url, name) : swrKey
+    const preloadCall = useCallback(() => {
+        preload(key, () => db.getDoc<T>(doctype, name))
+    }, [key, doctype, name])
+    return preloadCall
+}
+/**
  * Function that returns a query string for all arguments passed to getDocList function
  * @param args - The arguments to pass to the getDocList method
  * @returns query string to be appended to the url for the API call
@@ -333,12 +358,12 @@ export const useFrappeGetDocList = <T=any,K=FrappeDoc<T>>(doctype: string, args?
  *      preloadList()
  * }
  */
-export const useFrappePrefetchGetDocList = (doctype: string, args?: GetDocListArgs<FrappeDoc<any>>, swrKey?: Key) => {
+export const useFrappePrefetchGetDocList = <T=any,K=FrappeDoc<T>>(doctype: string, args?: GetDocListArgs<K>, swrKey?: Key) => {
     const { db, url } = useContext(FrappeContext) as FrappeConfig
     const key = swrKey === undefined ? `${getRequestURL(doctype, url)}?${getDocListQueryString(args)}` : swrKey
 
     const preloadCall = useCallback(() => {
-        preload(key, () => db.getDocList(doctype, args))
+        preload(key, () => db.getDocList<T, K>(doctype, args))
     }, [key, doctype, args])
 
     return preloadCall
@@ -596,11 +621,11 @@ export const useFrappeGetDocCount = <T=any,>(doctype: string, filters?: Filter<T
  * }
  */
 
-export const useFrappePrefetchGetDocCount = (doctype: string, filters?: Filter<any>[], cache: boolean = false, debug: boolean = false, swrKey?: Key) => {
+export const useFrappePrefetchGetDocCount = <T=any>(doctype: string, filters?: Filter<T>[], cache: boolean = false, debug: boolean = false, swrKey?: Key) => {
     const { db, url } = useContext(FrappeContext) as FrappeConfig
     const key = swrKey === undefined ? `${url}/api/method/frappe.client.get_count?${encodeQueryData({ doctype, filters: filters ?? [], cache, debug })}` : swrKey
     const preloadCall = useCallback(() => {
-        preload(key, () => db.getCount(doctype, filters, false, false))
+        preload(key, () => db.getCount<T>(doctype, filters, false, false))
     }, [key, doctype, filters])
     return preloadCall
 }
@@ -651,13 +676,13 @@ export const useFrappeGetCall = <T=any,>(method: string, params?: Record<string,
  *      preload()
  * }
  */
-export const useFrappePrefetchGetCall = (method: string, params?: Record<string, any>, swrKey?: Key, type: 'GET' | 'POST' = 'GET') => {
+export const useFrappePrefetchGetCall = <T=any>(method: string, params?: Record<string, any>, swrKey?: Key, type: 'GET' | 'POST' = 'GET') => {
     const { call } = useContext(FrappeContext) as FrappeConfig
     const urlParams = encodeQueryData(params ?? {})
     const url = `${method}?${urlParams}`
 
     const preloadCall = useCallback(() => {
-        preload(swrKey ?? url, type === 'GET' ? () => call.get(method, params) : () => call.post(method, params))
+        preload(swrKey ?? url, type === 'GET' ? () => call.get<T>(method, params) : () => call.post<T>(method, params))
     }, [url, method, params, swrKey])
 
     return preloadCall
