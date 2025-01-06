@@ -240,14 +240,14 @@ export const useFrappeGetDoc = <T=any,>(doctype: string, name?: string, swrKey?:
  * 
  * @example
  * 
- * const preloadDoc = useFrappePrefetchGetDoc("User", "test@example.com")
+ * const preloadDoc = useFrappePrefetchDoc("User", "test@example.com")
  * 
  * // Call the function when you want to prefetch the document
  * const onHover = () => {
  *      preloadDoc()
  * }
  */
-export const useFrappePrefetchGetDoc = <T=any>(doctype: string, name?: string, swrKey?: Key, options?: SWRConfiguration) => {
+export const useFrappePrefetchDoc = <T=any>(doctype: string, name?: string, swrKey?: Key, options?: SWRConfiguration) => {
     const { db, url } = useContext(FrappeContext) as FrappeConfig
     const key = swrKey === undefined ? getRequestURL(doctype, url, name) : swrKey
     const preloadCall = useCallback(() => {
@@ -351,14 +351,14 @@ export const useFrappeGetDocList = <T=any,K=FrappeDoc<T>>(doctype: string, args?
  * 
  * @example
  * 
- * const preloadList = useFrappePrefetchGetDocList("User")
+ * const preloadList = useFrappePrefetchDocList("User")
  * 
  * // Call the function when you want to prefetch the list
  * const onHover = () => {
  *      preloadList()
  * }
  */
-export const useFrappePrefetchGetDocList = <T=any,K=FrappeDoc<T>>(doctype: string, args?: GetDocListArgs<K>, swrKey?: Key) => {
+export const useFrappePrefetchDocList = <T=any,K=FrappeDoc<T>>(doctype: string, args?: GetDocListArgs<K>, swrKey?: Key) => {
     const { db, url } = useContext(FrappeContext) as FrappeConfig
     const key = swrKey === undefined ? `${getRequestURL(doctype, url)}?${getDocListQueryString(args)}` : swrKey
 
@@ -613,7 +613,7 @@ export const useFrappeGetDocCount = <T=any,>(doctype: string, filters?: Filter<T
  * 
  * @example
  * 
- * const preloadCount = useFrappePrefetchGetDocCount("User")
+ * const preloadCount = useFrappePrefetchDocCount("User")
  * 
  * // Call the function when you want to prefetch the count
  * const onHover = () => {
@@ -621,7 +621,7 @@ export const useFrappeGetDocCount = <T=any,>(doctype: string, filters?: Filter<T
  * }
  */
 
-export const useFrappePrefetchGetDocCount = <T=any>(doctype: string, filters?: Filter<T>[], cache: boolean = false, debug: boolean = false, swrKey?: Key) => {
+export const useFrappePrefetchDocCount = <T=any>(doctype: string, filters?: Filter<T>[], cache: boolean = false, debug: boolean = false, swrKey?: Key) => {
     const { db, url } = useContext(FrappeContext) as FrappeConfig
     const key = swrKey === undefined ? `${url}/api/method/frappe.client.get_count?${encodeQueryData({ doctype, filters: filters ?? [], cache, debug })}` : swrKey
     const preloadCall = useCallback(() => {
@@ -669,14 +669,14 @@ export const useFrappeGetCall = <T=any,>(method: string, params?: Record<string,
  * @returns A function to prefetch the GET request
  * 
  * @example
- * const preload = useFrappePrefetchGetCall('ping')
+ * const preload = useFrappePrefetchCall('ping')
  * 
  * // Call the function when you want to prefetch the GET request
  * const onHover = () => {
  *      preload()
  * }
  */
-export const useFrappePrefetchGetCall = <T=any>(method: string, params?: Record<string, any>, swrKey?: Key, type: 'GET' | 'POST' = 'GET') => {
+export const useFrappePrefetchCall = <T=any>(method: string, params?: Record<string, any>, swrKey?: Key, type: 'GET' | 'POST' = 'GET') => {
     const { call } = useContext(FrappeContext) as FrappeConfig
     const urlParams = encodeQueryData(params ?? {})
     const url = `${method}?${urlParams}`

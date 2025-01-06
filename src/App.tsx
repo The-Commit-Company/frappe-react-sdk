@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { useFrappeGetCall, useFrappePrefetchGetCall } from './lib'
+import { useFrappeGetCall, useFrappePrefetchCall } from './lib'
 
 function App() {
   const [count, setCount] = useState(0)
 
   const [mounted, setMounted] = useState(false)
 
-  const preload = useFrappePrefetchGetCall('ping')
+  const preload = useFrappePrefetchCall('ping')
 
   const onClick = () => {
     // Try prefetching here
