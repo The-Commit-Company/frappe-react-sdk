@@ -4,7 +4,7 @@ Make a PUT request to your endpoint with parameters.
 
 ```tsx copy
 export const MyDocumentPutCall = () => {
-  const { call, result, loading, isCompleted, reset } = useFrapePutDocCall(
+  const { call, result, loading, error, reset, isCompleted } = useFrappePutCall(
     /** method **/
     'frappe.client.set_value'
   );

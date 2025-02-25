@@ -2,7 +2,7 @@
 
 ```tsx copy
 export const MyDocumentDeleteCall = () => {
-  const { call, result, loading, isCompleted, reset } = useFrapeDeleteDocCall(
+  const { call, result, loading, error, isCompleted, reset } = useFrappeDeleteCall(
     /** method **/
     'frappe.client.delete'
   );
