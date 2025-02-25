@@ -2,7 +2,7 @@
 
 ```tsx copy
 export const MyDocumentPostCall = () => {
-  const { call, result, loading, isCompleted, reset } = useFrapePostDocCall(
+  const { call, result, loading, error, isCompleted, reset } = useFrapePostCall(
     /** method **/
     'frappe.client.set_value'
   );
