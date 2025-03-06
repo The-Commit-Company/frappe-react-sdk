@@ -5,7 +5,7 @@ import { FrappeDB } from "frappe-js-sdk/lib/db";
 import { FrappeFileUpload } from "frappe-js-sdk/lib/file";
 import { Error } from 'frappe-js-sdk/lib/frappe_app/types';
 import { Filter, FrappeDoc, GetDocListArgs } from 'frappe-js-sdk/lib/db/types'
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useRef, useContext, useEffect, useState } from 'react'
 import useSWR, { Key, SWRConfiguration, SWRResponse, useSWRConfig, SWRConfig, preload } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import { FileArgs } from 'frappe-js-sdk/lib/file/types';
@@ -1243,3 +1243,52 @@ export const useFrappeDocTypeEventListener = (
     useFrappeEventListener('list_update', onListUpdateCallback)
 
 }
+
+export const useFrappeDocCreateListener = (doctype, onCreateCallback) => {
+    const { socket } = useContext(FrappeContext) as FrappeConfig;
+    const [viewers, setViewers] = useState<string[]>([]);
+    const isSubscribed = useRef(false);
+    const doctype_name = (doctype || "").toLowerCase().replace(/\s+/g, "_");
+
+    useEffect(() => {
+      if (!socket) {
+        console.warn("Socket is not enabled");
+        return;
+      }
+  
+      if (isSubscribed.current) return;
+      isSubscribed.current = true;
+  
+      socket.emit("doctype_subscribe", doctype);
+  
+      const handleDocCreate = (eventData) => {
+        onCreateCallback(eventData);
+        if (eventData.doctype === doctype) {
+          onCreateCallback(eventData);
+        }
+      };
+  
+      socket.on(`new_${doctype_name}`, handleDocCreate);
+  
+      socket.on("list_update", handleDocCreate);
+  
+      socket.on("doc_viewers", (userList) => {
+        setViewers(userList);
+      });
+  
+      const handleReconnect = () => {
+        socket.emit("doctype_subscribe", doctype);
+      };
+      socket.io.on("reconnect", handleReconnect);
+  
+      return () => {
+        socket.emit("doctype_unsubscribe", doctype);
+        socket.off("doc_create", handleDocCreate);
+        socket.off("doc_viewers");
+        socket.io.off("reconnect", handleReconnect);
+        isSubscribed.current = false;
+      };
+    }, [socket, doctype]);
+  
+    return { viewers };
+  }
