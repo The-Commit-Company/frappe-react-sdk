@@ -11,7 +11,7 @@ export default defineConfig({
       fileName: (format) => `frappe-react-sdk.${format}.js`
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      external: ['react', 'react-dom', 'react/jsx-runtime'],
       output: {
         globals: {
           react: 'React'
