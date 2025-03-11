@@ -1,7 +1,7 @@
 {
   "name": "frappe-react-sdk",
   "description": "React hooks for Frappe Framework",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "license": "MIT",
   "author": {
     "name": "The Commit Company",
@@ -23,13 +23,6 @@
   "types": "./dist/index.d.ts",
   "main": "./dist/frappe-react-sdk.umd.js",
   "module": "./dist/frappe-react-sdk.es.js",
-  "exports": {
-    ".": {
-      "import": "./dist/frappe-react-sdk.es.js",
-      "require": "./dist/frappe-react-sdk.umd.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -60,7 +53,7 @@
     "@testing-library/react": "^13.4.0",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
-    "@vitejs/plugin-react": "^2.1.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "c8": "^7.13.0",
     "eslint": "^8.41.0",
     "eslint-plugin-react": "^7.32.2",
@@ -70,9 +63,9 @@
     "react-dom": "^18.2.0",
     "react-test-renderer": "^18.2.0",
     "typescript": "^4.6.4",
-    "vite": "^3.2.6",
-    "vite-plugin-dts": "^1.4.1",
-    "vitest": "^0.31.1"
+    "vite": "^6.2.1",
+    "vite-plugin-dts": "^4.5.3",
+    "vitest": "^3.0.8"
   },
   "eslintConfig": {
     "env": {
@@ -89,8 +82,8 @@
     }
   },
   "dependencies": {
-    "frappe-js-sdk": "^1.7.0",
+    "frappe-js-sdk": "^1.8.0",
     "socket.io-client": "4.7.1",
-    "swr": "^2.3.0"
+    "swr": "^2.3.3"
   }
 }
