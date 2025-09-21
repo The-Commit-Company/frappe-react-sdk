@@ -163,10 +163,12 @@ export const useFrappeAuth = (options?: SWRConfiguration): {
     const login = useCallback(async (credentials:AuthCredentials) => {
         return auth.loginWithUsernamePassword(credentials)
         .then((m) => {
-            getUserCookie()
+            //  THE FIX IS HERE:
+            // Manually trigger a re-fetch of the user data after login.
+            updateCurrentUser();
             return m
         })
-    }, [])
+    }, [updateCurrentUser]) // ✅And the dependency is added here
 
     const logout = useCallback(async () => {
         return auth.logout()
