@@ -135,9 +135,8 @@ Parameters:
 | --- | --------- | ------------------ | -------- | -------------------------------------------------------------- |
 | 1.  | `doctype` | `string`           | ✅       | Name of the doctype                                            |
 | 2.  | `filters` | `Filter[]`         | -        | optional parameter to filter the result                        |
-| 3.  | `cache`   | `boolean`          | -        | Whether to cache the value on the server - default: `false`    |
 | 3.  | `debug`   | `boolean`          | -        | Whether to log debug messages on the server - default: `false` |
-| 3.  | `config`  | `SWRConfiguration` | -        | SWR Configuration Options                                      |
+| 4.  | `config`  | `SWRConfiguration` | -        | SWR Configuration Options                                      |
 
 ```tsx copy
 export const DocumentCount = () => {
@@ -145,8 +144,6 @@ export const DocumentCount = () => {
     'User',
     /** Filters **/
     [['enabled', '=', true]],
-    /** Cache the result on server **/
-    false,
     /** Print debug logs on server **/
     false,
     {

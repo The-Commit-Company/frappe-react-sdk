@@ -4,8 +4,8 @@ React hooks library for a [Frappe Framework](https://frappeframework.com) backen
 
 <br />
 <p align="center">
-  <a href="https://github.com/nikkothari22/frappe-react-sdk"><img src="https://img.shields.io/maintenance/yes/2024?style=flat-square" /></a>
-  <a href="https://github.com/nikkothari22/frappe-react-sdk"><img src="https://img.shields.io/github/license/nikkothari22/frappe-react-sdk?style=flat-square" /></a>
+  <a href="https://github.com/The-Commit-Company/frappe-react-sdk"><img src="https://img.shields.io/maintenance/yes/2026?style=flat-square" /></a>
+  <a href="https://github.com/The-Commit-Company/frappe-react-sdk"><img src="https://img.shields.io/github/license/The-Commit-Company/frappe-react-sdk?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/frappe-react-sdk"><img src="https://img.shields.io/npm/v/frappe-react-sdk?style=flat-square" /></a>
     <a href="https://www.npmjs.com/package/frappe-react-sdk"><img src="https://img.shields.io/npm/dw/frappe-react-sdk?style=flat-square" /></a>
 </p>
@@ -37,7 +37,7 @@ The hooks in the library use the default configuration for useSWR but you will b
 
 ## Looking for a Frappe frontend library for other Javascript frameworks?
 
-You can use [frappe-js-sdk](https://github.com/nikkothari22/frappe-js-sdk) to interface your frontend web app with Frappe.
+You can use [frappe-js-sdk](https://github.com/The-Commit-Company/frappe-js-sdk) to interface your frontend web app with Frappe.
 
 <br/>
 
@@ -350,9 +350,8 @@ Parameters:
 | --- | --------- | ------------------ | -------- | -------------------------------------------------------------- |
 | 1.  | `doctype` | `string`           | ✅       | Name of the doctype                                            |
 | 2.  | `filters` | `Filter[]`         | -        | optional parameter to filter the result                        |
-| 3.  | `cache`   | `boolean`          | -        | Whether to cache the value on the server - default: `false`    |
 | 3.  | `debug`   | `boolean`          | -        | Whether to log debug messages on the server - default: `false` |
-| 3.  | `config`  | `SWRConfiguration` | -        | SWR Configuration Options                                      |
+| 4.  | `config`  | `SWRConfiguration` | -        | SWR Configuration Options                                      |
 
 ```tsx
 export const DocumentCount = () => {
@@ -360,8 +359,6 @@ export const DocumentCount = () => {
     'User',
     /** Filters **/
     [['enabled', '=', true]],
-    /** Cache the result on server **/
-    false,
     /** Print debug logs on server **/
     false,
     {
