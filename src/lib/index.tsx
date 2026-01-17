@@ -579,7 +579,6 @@ function encodeQueryData(data: Record<string, any>) {
  * 
  * @param doctype - The doctype to fetch
  * @param filters - filters to apply to the query
- * @param cache - Whether to cache the result or not. Defaults to false
  * @param debug - Whether to log debug messages or not. Defaults to false
  * @param options [Optional] SWRConfiguration options for fetching data
  * @returns an object (SWRResponse) with the following properties: data (number), error, isValidating, and mutate
@@ -589,15 +588,15 @@ function encodeQueryData(data: Record<string, any>) {
  * const { data, error, isLoading, mutate } = useFrappeGetDocCount("User")
  * 
  */
-export const useFrappeGetDocCount = <T=any,>(doctype: string, filters?: Filter<T>[], cache: boolean = false, debug: boolean = false, swrKey?: Key, options?: SWRConfiguration): SWRResponse<number, Error> => {
+export const useFrappeGetDocCount = <T=any,>(doctype: string, filters?: Filter<T>[], debug: boolean = false, swrKey?: Key, options?: SWRConfiguration): SWRResponse<number, Error> => {
 
     const { url, db } = useContext(FrappeContext) as FrappeConfig
     const getUniqueURLKey = () => {
-        const params = encodeQueryData(cache ? { doctype, filters: filters ?? [], cache, debug } : { doctype, filters: filters ?? [], debug: debug })
+        const params = encodeQueryData({ doctype, filters: filters ?? [], debug })
         // console.log(`${url}/api/method/frappe.client.get_count?${params.toString()}`)
         return `${url}/api/method/frappe.client.get_count?${params}`
     }
-    const swrResult = useSWR<number, Error>(swrKey === undefined ? getUniqueURLKey() : swrKey, () => db.getCount(doctype, filters, cache, debug), options)
+    const swrResult = useSWR<number, Error>(swrKey === undefined ? getUniqueURLKey() : swrKey, () => db.getCount(doctype, filters, debug), options)
 
     return swrResult
 }
@@ -606,7 +605,6 @@ export const useFrappeGetDocCount = <T=any,>(doctype: string, filters?: Filter<T
  * Hook to prefetch the number of documents from the database
  * @param doctype - The doctype to fetch
  * @param filters - filters to apply to the query
- * @param cache - Whether to cache the result or not. Defaults to false
  * @param debug - Whether to log debug messages or not. Defaults to false
  * @param swrKey - The SWRKey to use for caching the result - optional
  * @returns A function to prefetch the number of documents
@@ -621,11 +619,11 @@ export const useFrappeGetDocCount = <T=any,>(doctype: string, filters?: Filter<T
  * }
  */
 
-export const useFrappePrefetchDocCount = <T=any>(doctype: string, filters?: Filter<T>[], cache: boolean = false, debug: boolean = false, swrKey?: Key) => {
+export const useFrappePrefetchDocCount = <T=any>(doctype: string, filters?: Filter<T>[], debug: boolean = false, swrKey?: Key) => {
     const { db, url } = useContext(FrappeContext) as FrappeConfig
-    const key = swrKey === undefined ? `${url}/api/method/frappe.client.get_count?${encodeQueryData({ doctype, filters: filters ?? [], cache, debug })}` : swrKey
+    const key = swrKey === undefined ? `${url}/api/method/frappe.client.get_count?${encodeQueryData({ doctype, filters: filters ?? [], debug })}` : swrKey
     const preloadCall = useCallback(() => {
-        preload(key, () => db.getCount<T>(doctype, filters, false, false))
+        preload(key, () => db.getCount<T>(doctype, filters, false))
     }, [key, doctype, filters])
     return preloadCall
 }
