@@ -1,7 +1,7 @@
 {
   "name": "frappe-react-sdk",
   "description": "React hooks for Frappe Framework",
-  "version": "1.17.0",
+  "version": "1.17.1",
   "license": "MIT",
   "author": {
     "name": "The Commit Company",
@@ -82,8 +82,8 @@
     }
   },
   "dependencies": {
-    "frappe-js-sdk": "^1.14.0",
+    "frappe-js-sdk": "^1.14.1",
     "socket.io-client": "4.7.1",
-    "swr": "^2.4.1"
+    "swr": "^2.4.2"
   }
 }
